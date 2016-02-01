@@ -149,10 +149,22 @@ rotateHue angle cl =
         hsla (hue + (degrees angle)) saturation lightness alpha
 
 
+{-| Create a new gradient `Palette` from a given `Palette`, with a given size.
+-}
+gradient : Palette -> Int -> Palette
+gradient palette size =
+    let
+        l = toFloat (size - 1)
+
+        gr = List.map2 (\i cl -> ( (toFloat i / l), cl )) [0..(size - 1)] palette
+    in
+        gradientFromStops gr size
+
+
 {-| Create a new `Palette` from a given `Gradient`, with a given size.
 -}
-gradient : Gradient -> Int -> Palette
-gradient stops size =
+gradientFromStops : Gradient -> Int -> Palette
+gradientFromStops stops size =
     let
         purifiedStops =
             stops
