@@ -45,10 +45,6 @@ toCssString cl =
     let
         { red, green, blue, alpha } = toRgb cl
 
-        l = Debug.log "c" ( red, green, blue, alpha )
-
-        la = Debug.log "cl" cl
-
         rgba =
             [ (toFloat red), (toFloat green), (toFloat blue), alpha ]
                 |> List.map toString
@@ -76,12 +72,12 @@ blend c1 c2 t =
 
         c2' = toRgb c2
 
-        i =  interpolate t
+        i = interpolate t
     in
         rgba
             (round (i (toFloat c1'.red) (toFloat c2'.red)))
-            (round(i (toFloat c1'.green) (toFloat c2'.green)))
-            (round(i (toFloat c1'.blue) (toFloat c2'.blue)))
+            (round (i (toFloat c1'.green) (toFloat c2'.green)))
+            (round (i (toFloat c1'.blue) (toFloat c2'.blue)))
             (i c1'.alpha c2'.alpha)
 
 
@@ -117,6 +113,30 @@ saturate offset cl =
 desaturate : Float -> Color -> Color
 desaturate offset cl =
     saturate -offset cl
+
+
+{-| Convert the color to a greyscale version, aka set saturation to 0
+-}
+greyscale : Color -> Color
+greyscale cl =
+    saturate -1 cl
+
+
+{-| Increase the opacity of a color
+-}
+fadeIn : Float -> Color -> Color
+fadeIn offset cl =
+    let
+        { hue, saturation, lightness, alpha } = toHsl cl
+    in
+        hsla hue saturation lightness (limit (alpha + offset))
+
+
+{-| Decrease the opacity of a color
+-}
+fadeOut : Float -> Color -> Color
+fadeOut offset cl =
+    fadeIn -offset cl
 
 
 {-| Change the hue of a color. The angle value must be in degrees
