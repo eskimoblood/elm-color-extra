@@ -1,17 +1,20 @@
 {
-    "version": "1.0.0",
-    "summary": "Additional color handling for Elm",
-    "repository": "https://github.com/eskimoblood/elm-color-extra.git",
-    "license": "BSD3",
-    "source-directories": [
-        "./src"
-    ],
-    "exposed-modules": [
-        "Color.Extra"
-    ],
-    "dependencies": {
-        "elm-lang/core": "3.0.0 <= v < 4.0.0",
-        "fredcy/elm-parseint": "1.0.0 <= v < 2.0.0"
-    },
-    "elm-version": "0.16.0 <= v < 0.17.0"
+  "version": "1.0.0",
+  "summary": "Additional color handling for Elm",
+  "repository": "https://github.com/eskimoblood/elm-color-extra.git",
+  "license": "BSD3",
+  "source-directories": [
+    "./src"
+  ],
+  "exposed-modules": [
+    "Color.Manipulate",
+    "Color.Blending",
+    "Color.Convert",
+    "Color.Gradient"
+  ],
+  "dependencies": {
+    "elm-lang/core": "3.0.0 <= v < 4.0.0",
+    "fredcy/elm-parseint": "1.0.0 <= v < 2.0.0"
+  },
+  "elm-version": "0.16.0 <= v < 0.17.0"
 }

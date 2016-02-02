@@ -1,4 +1,11 @@
-module Color.Convert (..) where
+module Color.Convert (colorToCssRgb, colorToCssRgba, colorToCssHsl, colorToCssHsla, colorToHex, hexToColor) where
+
+{-|
+#Convert
+Convert colors to differnt string formats and hexadecimal strings to colors.
+
+@docs colorToCssRgb, colorToCssRgba, colorToCssHsl, colorToCssHsla, colorToHex, hexToColor
+-}
 
 import ParseInt exposing (parseIntHex)
 import Color exposing (..)
@@ -7,8 +14,15 @@ import Array
 import String
 import Result
 import List
+import Char
+import String
 
 
+{-|
+Converts a color to an css rgb string.
+
+    colorToCssRgb (rgb 255 0 0 ) -- "rgb(255, 0, 0)"
+-}
 colorToCssRgb : Color -> String
 colorToCssRgb cl =
     let
@@ -17,6 +31,11 @@ colorToCssRgb cl =
         cssColorString "rgb" [ (toFloat red), (toFloat green), (toFloat blue) ]
 
 
+{-|
+Converts a color to an css rgba string.
+
+    colorToCssRgb (rgba 255 0 0 0.5) -- "rgb(255, 0, 0, 0.5)"
+-}
 colorToCssRgba : Color -> String
 colorToCssRgba cl =
     let
@@ -25,6 +44,11 @@ colorToCssRgba cl =
         cssColorString "rgba" [ (toFloat red), (toFloat green), (toFloat blue), alpha ]
 
 
+{-|
+Converts a color to an css hsl string.
+
+    colorToCssRgb (hsl 1 1 0.5) -- "hsl(1, 1, 0.5)"
+-}
 colorToCssHsl : Color -> String
 colorToCssHsl cl =
     let
@@ -33,6 +57,11 @@ colorToCssHsl cl =
         cssColorString "hsl" [ hue, saturation, lightness ]
 
 
+{-|
+Converts a color to an css hsla string.
+
+    colorToCssRgb (hsla 1 1 0.5 1) -- "hsla(1, 1, 0.5, 1)"
+-}
 colorToCssHsla : Color -> String
 colorToCssHsla cl =
     let
@@ -51,6 +80,14 @@ cssColorString kind values =
         ++ ")"
 
 
+{-|
+Converts a string to `Maybe` of color.
+
+    hexToColor "#ff0000" -- "Just RGB 255 0 0"
+    hexToColor "ff0000" -- "Just RGB 255 0 0"
+    hexToColor "1234" -- "Nothing"
+
+-}
 hexToColor : String -> Maybe Color
 hexToColor c =
     let
@@ -94,3 +131,43 @@ hexToColor c =
 
             Nothing ->
                 Nothing
+
+
+{-|
+Converts a color to a hexadecimal string.
+
+    hexToColor (rgb 255 0 0) -- "#ff0000"
+
+-}
+colorToHex : Color -> String
+colorToHex cl =
+    let
+        { red, green, blue, alpha } = toRgb cl
+    in
+        "#" ++ (toHex red) ++ (toHex green) ++ (toHex blue)
+
+
+toHex : Int -> String
+toHex n =
+    let
+        hex = toRadix n
+    in
+        if String.length hex == 1 then
+            "0" ++ hex
+        else
+            hex
+
+
+toRadix : Int -> String
+toRadix n =
+    let
+        getChr c =
+            if c < 10 then
+                toString c
+            else
+                String.fromChar <| Char.fromCode (87 + c)
+    in
+        if n < 16 then
+            getChr n
+        else
+            (toRadix (n // 16)) ++ (getChr (n % 16))
