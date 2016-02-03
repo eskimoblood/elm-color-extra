@@ -1,10 +1,10 @@
-module Color.Manipulate (darken, lighten, saturate, desaturate, rotateHue, fadeIn, fadeOut) where
+module Color.Manipulate (darken, lighten, saturate, desaturate, rotateHue, fadeIn, fadeOut, grayscale) where
 
 {-| A library for creating and manipulating colors.
 
 
 # Color adjustment
-@docs darken, lighten, saturate, desaturate, rotateHue, fadeIn, fadeOut
+@docs darken, lighten, saturate, desaturate, rotateHue, fadeIn, fadeOut, grayscale
 
 -}
 
@@ -52,8 +52,8 @@ desaturate offset cl =
 
 {-| Convert the color to a greyscale version, aka set saturation to 0
 -}
-greyscale : Color -> Color
-greyscale cl =
+grayscale : Color -> Color
+grayscale cl =
     saturate -1 cl
 
 
