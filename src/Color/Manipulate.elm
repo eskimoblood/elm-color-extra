@@ -16,7 +16,7 @@ limit =
     clamp 0 1
 
 
-{-| Decrease the lightning of a colosds
+{-| Decrease the lightning of a color
 -}
 darken : Float -> Color -> Color
 darken offset cl =

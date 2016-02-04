@@ -28,8 +28,17 @@ type alias GradientStop =
 type alias Gradient =
     List GradientStop
 
+
 {-| Create a new `Palette`  with gradient colors from a given `Palette`,
  with a given size.
+
+    p1 : Palette
+    p1 =
+      [ rgb 200 0 200
+      , rgb 0 100 100
+      , rgb 100 0 0
+      ]
+    gradient p1 5 -- [RGBA 200 0 200 1,RGBA 100 50 150 1,RGBA 0 100 100 1,RGBA 50 50 50 1,RGBA 100 0 0 1]
 -}
 gradient : Palette -> Int -> Palette
 gradient palette size =
@@ -37,13 +46,20 @@ gradient palette size =
         l = List.length palette - 1
 
         gr = List.map2 (\i cl -> ( (toFloat i / toFloat l), cl )) [0..l] palette
-
     in
         gradientFromStops gr size
 
 
 {-| Create a new `Palette`  with gradient colors from a given `Gradient`,
  with a given size.
+
+    g : Gradient
+    g =
+      [ (0, rgb 200 0 200)
+      , (0.25, rgb 0 100 100)
+      , (1, rgb 150 175 160)
+      ]
+    gradientFromStops g 5 -- [RGBA 200 0 200 1,RGBA 0 100 100 1,RGBA 50 125 120 1,RGBA 100 150 140 1,RGBA 150 175 160 1]
 -}
 gradientFromStops : Gradient -> Int -> Palette
 gradientFromStops stops size =
