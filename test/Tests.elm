@@ -89,13 +89,29 @@ p1Result =
     , rgb 100 0 0
     ]
 
+p2 : Gradient
+p2 =
+    [ (0, rgb 200 0 200)
+    , (0.25, rgb 0 100 100)
+    , (1, rgb 150 175 160)
+    ]
+
+p2Result : Palette
+p2Result =
+    [ rgb 200 0 200
+    , rgb 0 100 100
+    , rgb 50 125 120
+    , rgb 100 150 140
+    , rgb 150 175 160
+    ]
+
 
 gradient : Test
 gradient =
     suite
         "Gradient"
         [ test "Gradient from list" (assertEqual (Gra.gradient p1 5) p1Result)
-        , test "Gradient from list" (assertEqual (Gra.gradient p1 5) p1Result)
+        , test "Gradient from stops" (assertEqual (Gra.gradientFromStops p2 5) p2Result)
         ]
 
 
