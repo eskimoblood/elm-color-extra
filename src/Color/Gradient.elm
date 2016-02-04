@@ -95,7 +95,7 @@ c t ( stop1, stop2, gradient, palette ) =
     let
         ( stop1', stop2', gradient', color ) = calculateGradient stop1 stop2 gradient t
     in
-        ( stop1', stop2', gradient, (color :: palette) )
+        ( stop1', stop2', gradient', (color :: palette) )
 
 
 calculateGradient : GradientStop -> GradientStop -> Gradient -> Float -> ( GradientStop, GradientStop, Gradient, Color )
