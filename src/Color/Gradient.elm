@@ -34,9 +34,10 @@ type alias Gradient =
 gradient : Palette -> Int -> Palette
 gradient palette size =
     let
-        l = toFloat (size - 1)
+        l = List.length palette - 1
 
-        gr = List.map2 (\i cl -> ( (toFloat i / l), cl )) [0..(size - 1)] palette
+        gr = List.map2 (\i cl -> ( (toFloat i / toFloat l), cl )) [0..l] palette
+
     in
         gradientFromStops gr size
 

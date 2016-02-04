@@ -1,10 +1,10 @@
-module Color.Blending (mix, multiply, screen, overlay, difference, exclusion, hardlight, softlight, colorBurn) where
+module Color.Blending (mix, multiply, screen, overlay, difference, exclusion, hardlight, softlight, colorBurn, colorDodge, lighten, darken) where
 
 {-|
 # Blending
 Based on the [Compositing and Blending Level 1](https://www.w3.org/TR/compositing-1/#blending)
 
-@docs mix, multiply, screen, overlay, difference, exclusion, hardlight, softlight, colorBurn
+@docs mix, multiply, screen, overlay, difference, exclusion, hardlight, softlight, colorBurn, colorDodge, lighten, darken
 -}
 
 import Color exposing (Color, toRgb, rgba)
@@ -164,12 +164,17 @@ calcChanel fn aB aS ar cB cS =
             else
                 (aS * cS' + aB * (cB' - aS * (cB' + cS' - cr))) / ar
     in
-        round (cr' * 255)
+        round (clampChannel cr' * 255)
+
+
+clampChannel : number -> number
+clampChannel =
+    clamp 0 1
 
 
 screen' : Float -> Float -> Float
 screen' cB cS =
-    cB + cS - cB * cB
+    cB + cS - cB * cS
 
 
 overlay' : Float -> Float -> Float
