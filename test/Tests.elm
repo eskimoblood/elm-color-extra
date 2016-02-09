@@ -27,10 +27,10 @@ manipulate : Test
 manipulate =
     suite
         "Manipulate"
-        [ test "Darken" (assertEqual (Man.darken 0.5 (hsl 1 1 0.2)) (hsl 1 1 0.7))
-        , test "Darken should be limit to 1" (assertEqual (Man.darken 10 (hsl 1 1 1)) (hsl 1 1 1))
-        , test "Lighten" (assertEqual (Man.lighten 0.5 (hsl 1 1 1)) (hsl 1 1 0.5))
-        , test "Lighten should be limit to 0" (assertEqual (Man.lighten 10 (hsl 1 1 1)) (hsl 1 1 0))
+        [ test "Darken" (assertEqual (Man.darken 0.5 (hsl 1 1 1)) (hsl 1 1 0.5))
+        , test "Darken should be limit to 0" (assertEqual (Man.darken 10 (hsl 1 1 1)) (hsl 1 1 0))
+        , test "Lighten" (assertEqual (Man.lighten 0.5 (hsl 1 1 0.2)) (hsl 1 1 0.7))
+        , test "Lighten should be limit to 1" (assertEqual (Man.lighten 10 (hsl 1 1 0)) (hsl 1 1 1))
         , test "Saturate" (assertEqual (saturate 0.5 (hsl 1 0 1)) (hsl 1 0.5 1))
         , test "Saturate should be limit to 1" (assertEqual (saturate 10 (hsl 1 1 1)) (hsl 1 1 1))
         , test "Desaturate" (assertEqual (desaturate 0.5 (hsl 1 1 1)) (hsl 1 0.5 1))

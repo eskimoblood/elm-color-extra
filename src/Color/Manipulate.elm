@@ -23,7 +23,7 @@ darken offset cl =
     let
         { hue, saturation, lightness, alpha } = toHsl cl
     in
-        hsla hue saturation (limit (lightness + offset)) alpha
+        hsla hue saturation (limit (lightness - offset)) alpha
 
 
 {-| Increase the lightning of a color
