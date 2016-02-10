@@ -13,10 +13,10 @@ Different methods to blend two colors.
 
 Create gradient colors from color stops or list of colors.
 
-#Color.#Convert
+##Color.Convert
 
 Convert colors to strings or strings to colors.
 
-#Color.#Interpolate
+##Color.Interpolate
 
 Interpolate between two colors.
