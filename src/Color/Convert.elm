@@ -28,7 +28,7 @@ colorToCssRgb cl =
     let
         { red, green, blue, alpha } = toRgb cl
     in
-        cssColorString "rgb" [ (toFloat red), (toFloat green), (toFloat blue) ]
+        cssColorString "rgb" [ (toString red), (toString green), (toString blue) ]
 
 
 {-|
@@ -41,7 +41,7 @@ colorToCssRgba cl =
     let
         { red, green, blue, alpha } = toRgb cl
     in
-        cssColorString "rgba" [ (toFloat red), (toFloat green), (toFloat blue), alpha ]
+        cssColorString "rgba" [ (toString red), (toString green), (toString blue), (toString alpha) ]
 
 
 {-|
@@ -54,29 +54,37 @@ colorToCssHsl cl =
     let
         { hue, saturation, lightness, alpha } = toHsl cl
     in
-        cssColorString "hsl" [ hue, saturation, lightness ]
+        cssColorString "hsl" [ (hueToString hue), (toPercentString saturation), (toPercentString lightness) ]
 
 
 {-|
 Converts a color to an css hsla string.
 
-    colorToCssRgb (hsla 1 1 0.5 1) -- "hsla(1, 1, 0.5, 1)"
+    colorToCssRgb (hsla 1 1 0.5 1) -- "hsla(56, 100%, 50%, 1)"
 -}
 colorToCssHsla : Color -> String
 colorToCssHsla cl =
     let
         { hue, saturation, lightness, alpha } = toHsl cl
     in
-        cssColorString "hsla" [ hue, saturation, lightness, alpha ]
+        cssColorString "hsla" [ (hueToString hue), (toPercentString saturation), (toPercentString lightness), (toString alpha) ]
 
 
-cssColorString : String -> List Float -> String
+hueToString : Float -> String
+hueToString h =
+    (h * 180 / pi) |> round |> toString
+
+
+toPercentString : Float -> String
+toPercentString h =
+    ((h * 100) |> round |> toString) ++ "%"
+
+
+cssColorString : String -> List String -> String
 cssColorString kind values =
     kind
         ++ "("
-        ++ (List.map toString values
-                |> String.join ", "
-           )
+        ++ (String.join ", " values)
         ++ ")"
 
 

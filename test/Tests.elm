@@ -14,8 +14,8 @@ convert =
         "Convert"
         [ test "Color to rgb String" (assertEqual (colorToCssRgb (rgb 255 125 0)) "rgb(255, 125, 0)")
         , test "Color to rgba String" (assertEqual (colorToCssRgba (rgba 255 125 0 0.3)) "rgba(255, 125, 0, 0.3)")
-        , test "Color to hsl String" (assertEqual (colorToCssHsl (hsl 0.4 0.2 0)) "hsl(0.4, 0.2, 0)")
-        , test "Color to hsla String" (assertEqual (colorToCssHsla (hsla 0.4 0.2 0 1)) "hsla(0.4, 0.2, 0, 1)")
+        , test "Color to hsl String" (assertEqual (colorToCssHsl (hsl 0.4 0.2 0)) "hsl(23, 20%, 0%)")
+        , test "Color to hsla String" (assertEqual (colorToCssHsla (hsla 0.4 0.2 0 1)) "hsla(23, 20%, 0%, 1)")
         , test "Color to hex String" (assertEqual (colorToHex (rgb 255 0 255)) "#ff00ff")
         , test "Hex string to hex color" (assertEqual (hexToColor "#ff00ff") (Just (rgb 255 0 255)))
         , test "Hex string to hex color" (assertEqual (hexToColor "ff00ff") (Just (rgb 255 0 255)))
