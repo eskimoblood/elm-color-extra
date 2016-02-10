@@ -7,7 +7,7 @@ module Color.Gradient (gradient, gradientFromStops, Palette, GradientStop, Gradi
 
 import Color exposing (Color)
 import Maybe exposing (..)
-import Color.Blending exposing (mix)
+import Color.Interpolate as Interpolate exposing (interpolate, Space(RGB, HSL))
 
 
 {-| Create a new gradient `Palette` from a given `Palette`, with a given size.
@@ -40,14 +40,14 @@ type alias Gradient =
       ]
     gradient p1 5 -- [RGBA 200 0 200 1,RGBA 100 50 150 1,RGBA 0 100 100 1,RGBA 50 50 50 1,RGBA 100 0 0 1]
 -}
-gradient : Palette -> Int -> Palette
-gradient palette size =
+gradient : Space -> Palette -> Int -> Palette
+gradient space palette size =
     let
         l = List.length palette - 1
 
         gr = List.map2 (\i cl -> ( (toFloat i / toFloat l), cl )) [0..l] palette
     in
-        gradientFromStops gr size
+        gradientFromStops space gr size
 
 
 {-| Create a new `Palette`  with gradient colors from a given `Gradient`,
@@ -61,8 +61,8 @@ gradient palette size =
       ]
     gradientFromStops g 5 -- [RGBA 200 0 200 1,RGBA 0 100 100 1,RGBA 50 125 120 1,RGBA 100 150 140 1,RGBA 150 175 160 1]
 -}
-gradientFromStops : Gradient -> Int -> Palette
-gradientFromStops stops size =
+gradientFromStops : Space -> Gradient -> Int -> Palette
+gradientFromStops space stops size =
     let
         purifiedStops =
             stops
@@ -82,7 +82,7 @@ gradientFromStops stops size =
 
                     ( s2, g ) = getNextGradientStop s1 currentStops
                 in
-                    List.foldl c ( s1, s2, g, [] ) stops
+                    List.foldl (c space) ( s1, s2, g, [] ) stops
                         |> (\( _, _, _, p ) -> p)
                         |> List.reverse
 
@@ -90,35 +90,35 @@ gradientFromStops stops size =
                 []
 
 
-c : Float -> ( GradientStop, GradientStop, Gradient, Palette ) -> ( GradientStop, GradientStop, Gradient, Palette )
-c t ( stop1, stop2, gradient, palette ) =
+c : Space -> Float -> ( GradientStop, GradientStop, Gradient, Palette ) -> ( GradientStop, GradientStop, Gradient, Palette )
+c space t ( stop1, stop2, gradient, palette ) =
     let
-        ( stop1', stop2', gradient', color ) = calculateGradient stop1 stop2 gradient t
+        ( stop1', stop2', gradient', color ) = calculateGradient space stop1 stop2 gradient t
     in
         ( stop1', stop2', gradient', (color :: palette) )
 
 
-calculateGradient : GradientStop -> GradientStop -> Gradient -> Float -> ( GradientStop, GradientStop, Gradient, Color )
-calculateGradient stop1 stop2 gradient t =
+calculateGradient : Space -> GradientStop -> GradientStop -> Gradient -> Float -> ( GradientStop, GradientStop, Gradient, Color )
+calculateGradient space stop1 stop2 gradient t =
     if (fst stop2 < t) then
         let
             stop1' = stop2
 
             ( stop2', gradient' ) = getNextGradientStop stop2 gradient
         in
-            ( stop1', stop2', gradient', (calculateColor stop1' stop2' t) )
+            ( stop1', stop2', gradient', (calculateColor space stop1' stop2' t) )
     else
-        ( stop1, stop2, gradient, (calculateColor stop1 stop2 t) )
+        ( stop1, stop2, gradient, (calculateColor space stop1 stop2 t) )
 
 
-calculateColor : GradientStop -> GradientStop -> Float -> Color
-calculateColor ( t1, cl1 ) ( t2, cl2 ) t =
+calculateColor : Space -> GradientStop -> GradientStop -> Float -> Color
+calculateColor space ( t1, cl1 ) ( t2, cl2 ) t =
     if t == 0 then
         cl1
     else if t == 1 then
         cl2
     else
-        mix cl1 cl2 ((t - t1) / (t2 - t1))
+        interpolate space cl1 cl2 ((t - t1) / (t2 - t1))
 
 
 getNextGradientStop : GradientStop -> Gradient -> ( GradientStop, Gradient )

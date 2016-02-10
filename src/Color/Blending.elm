@@ -1,36 +1,13 @@
-module Color.Blending (mix, multiply, screen, overlay, difference, exclusion, hardlight, softlight, colorBurn, colorDodge, lighten, darken) where
+module Color.Blending (multiply, screen, overlay, difference, exclusion, hardlight, softlight, colorBurn, colorDodge, lighten, darken) where
 
 {-|
 # Blending
 Based on the [Compositing and Blending Level 1](https://www.w3.org/TR/compositing-1/#blending)
 
-@docs mix, multiply, screen, overlay, difference, exclusion, hardlight, softlight, colorBurn, colorDodge, lighten, darken
+@docs multiply, screen, overlay, difference, exclusion, hardlight, softlight, colorBurn, colorDodge, lighten, darken
 -}
 
 import Color exposing (Color, toRgb, rgba)
-
-
-{-| Linear interpolation of two colors by a factor between `0` and `1`.
--}
-mix : Color -> Color -> Float -> Color
-mix cB cS t =
-    let
-        cB' = toRgb cB
-
-        cS' = toRgb cS
-
-        i = interpolate t
-    in
-        rgba
-            (round (i (toFloat cB'.red) (toFloat cS'.red)))
-            (round (i (toFloat cB'.green) (toFloat cS'.green)))
-            (round (i (toFloat cB'.blue) (toFloat cS'.blue)))
-            (i cB'.alpha cS'.alpha)
-
-
-interpolate : Float -> Float -> Float -> Float
-interpolate t i1 i2 =
-    i1 + (i2 - i1) * t
 
 
 {-|

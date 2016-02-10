@@ -10,7 +10,8 @@
         "Color.Manipulate",
         "Color.Blending",
         "Color.Convert",
-        "Color.Gradient"
+        "Color.Gradient",
+        "Color.Interpolate"
     ],
     "dependencies": {
         "elm-lang/core": "3.0.0 <= v < 4.0.0",

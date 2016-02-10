@@ -1,10 +1,10 @@
-module Color.Convert (colorToCssRgb, colorToCssRgba, colorToCssHsl, colorToCssHsla, colorToHex, hexToColor) where
+module Color.Convert (colorToCssRgb, colorToCssRgba, colorToCssHsl, colorToCssHsla, colorToHex, hexToColor, colorToLab, labToColor) where
 
 {-|
 #Convert
 Convert colors to differnt string formats and hexadecimal strings to colors.
 
-@docs colorToCssRgb, colorToCssRgba, colorToCssHsl, colorToCssHsla, colorToHex, hexToColor
+@docs colorToCssRgb, colorToCssRgba, colorToCssHsl, colorToCssHsla, colorToHex, hexToColor, colorToLab, labToColor
 -}
 
 import ParseInt exposing (parseIntHex)
@@ -179,3 +179,88 @@ toRadix n =
             getChr n
         else
             (toRadix (n // 16)) ++ (getChr (n % 16))
+
+
+{-| Convert color to CIELAB- color space
+-}
+colorToLab : Color -> { l : Float, a : Float, b : Float }
+colorToLab cl =
+    let
+        { red, green, blue } = toRgb cl
+
+        r = c red
+
+        g = c green
+
+        b = c blue
+
+        x = l ((r * 0.4124 + g * 0.3576 + b * 0.1805) / 95.047)
+
+        y = l ((r * 0.2126 + g * 0.7152 + b * 7.22e-2) / 100)
+
+        z = l ((r * 1.93e-2 + g * 0.1192 + b * 0.9505) / 108.883)
+    in
+        { l = (116 * y) - 16
+        , a = 500 * (x - y)
+        , b = 200 * (y - z)
+        }
+
+
+c : Int -> Float
+c ch =
+    let
+        ch' = (toFloat ch) / 255
+
+        ch'' =
+            if ch' > 4.045e-2 then
+                ((ch' + 5.5e-2) / 1.055) ^ 2.4
+            else
+                ch' / 12.92
+    in
+        ch'' * 100
+
+
+l : Float -> Float
+l ch =
+    if ch > 8.856e-3 then
+        ch ^ (1 / 3)
+    else
+        (7.787 * ch) + (16 / 116)
+
+{-| Convert a color in CIELAB- color space to Elm `Color`
+-}
+labToColor : { l : Float, a : Float, b : Float } -> Color
+labToColor { l, a, b } =
+    let
+        y = (d ((l + 16) / 116))
+
+        x = (d (a / 500 + y)) * 95.047 / 100
+
+        z = (d (y - b / 200)) * 108.883 / 100
+
+        r = x * 3.2406 + y * -1.5372 + z * -0.4986
+
+        g = x * -0.9689 + y * 1.8758 + z * 4.15e-2
+
+        b = x * 5.57e-2 + y * -0.204 + z * 1.057
+    in
+        rgb
+            (round (f r) * 255)
+            (round (f g) * 255)
+            (round (f b) * 255)
+
+
+d : Float -> Float
+d ch =
+    if ch ^ 3 > 8.856e-3 then
+        ch ^ 3
+    else
+        (ch - 16 / 116) / 7.787
+
+
+f : Float -> Float
+f ch =
+    if ch > 3.1308e-3 then
+        1.055 * (ch ^ (1 / 2.4)) - 5.5e-2
+    else
+        12.92 * ch
