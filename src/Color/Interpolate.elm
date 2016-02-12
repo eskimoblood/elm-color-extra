@@ -1,4 +1,4 @@
-module Color.Interpolate (Space(RGB, HSL), interpolate) where
+module Color.Interpolate (Space(RGB, HSL, LAB), interpolate) where
 
 {-|
 # Interpolate
@@ -67,10 +67,9 @@ interpolate space cl1 cl2 t =
                         else
                             h2 - h1
 
-                    hue = h1 + t * dH
                 in
                     hsla
-                        hue
+                        (h1 + t * dH)
                         (i cl1'.saturation cl2'.saturation)
                         (i cl1'.lightness cl2'.lightness)
                         (i cl1'.alpha cl2'.alpha)
@@ -80,14 +79,12 @@ interpolate space cl1 cl2 t =
                     lab1 = colorToLab cl1
 
                     lab2 = colorToLab cl2
-
-                    l = i lab1.l lab2.l
-
-                    a = i lab1.a lab2.a
-
-                    b = i lab1.b lab2.b
                 in
-                    labToColor { l = l, a = a, b = b }
+                    labToColor
+                        { l = i lab1.l lab2.l
+                        , a = i lab1.a lab2.a
+                        , b = i lab1.b lab2.b
+                        }
 
 
 linear : Float -> Float -> Float -> Float

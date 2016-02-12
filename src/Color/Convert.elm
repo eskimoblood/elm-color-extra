@@ -227,35 +227,40 @@ l ch =
     else
         (7.787 * ch) + (16 / 116)
 
+
 {-| Convert a color in CIELAB- color space to Elm `Color`
 -}
 labToColor : { l : Float, a : Float, b : Float } -> Color
-labToColor { l, a, b } =
+labToColor lab =
     let
-        y = (d ((l + 16) / 116))
-
-        x = (d (a / 500 + y)) * 95.047 / 100
-
-        z = (d (y - b / 200)) * 108.883 / 100
-
-        r = x * 3.2406 + y * -1.5372 + z * -0.4986
-
-        g = x * -0.9689 + y * 1.8758 + z * 4.15e-2
-
-        b = x * 5.57e-2 + y * -0.204 + z * 1.057
+        { x, y, z } = xyz lab
     in
         rgb
-            (round (f r) * 255)
-            (round (f g) * 255)
-            (round (f b) * 255)
+            (round ((f (x * 3.2404542 + y * -1.5371385 + z * -0.4986)) * 255))
+            (round ((f (x * -0.969266 + y * 1.8760108 + z * 4.1556e-2)) * 255))
+            (round ((f (x * 5.56434e-2 + y * 0.2040259 + z * 1.0572252)) * 255))
+
+
+xyz : { l : Float, a : Float, b : Float } -> { x : Float, y : Float, z : Float }
+xyz { l, a, b } =
+    let
+        y = (l + 16) / 116
+    in
+        { y = d y
+        , x = (d (y + a / 500)) * 0.95047
+        , z = (d (y - b / 200)) * 1.08883
+        }
 
 
 d : Float -> Float
 d ch =
-    if ch ^ 3 > 8.856e-3 then
-        ch ^ 3
-    else
-        (ch - 16 / 116) / 7.787
+    let
+        ch' = ch * ch * ch
+    in
+        if ch' > 8.856e-3 then
+            ch'
+        else
+            (ch - 16 / 116) / 7.787
 
 
 f : Float -> Float
