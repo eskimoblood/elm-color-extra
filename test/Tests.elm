@@ -5,6 +5,7 @@ import Color.Convert exposing (..)
 import Color.Gradient as Gra exposing (..)
 import Color.Manipulate as Man exposing (..)
 import Color.Blending as Ble exposing (..)
+import Color.Interpolate as Int exposing (..)
 import Color exposing (Color, rgb, rgba, hsl, hsla)
 
 
@@ -60,8 +61,7 @@ blending : Test
 blending =
     suite
         "Blending"
-        [ test "Mix" (assertEqual (mix (rgba 0 0 0 0) (rgba 255 255 255 1) 0.5) (rgba 128 128 128 0.5))
-        , test "Multiply" (assertEqual (multiply c1 c2) (rgb 0 102 0))
+        [ test "Multiply" (assertEqual (multiply c1 c2) (rgb 0 102 0))
         , test "Screen" (assertEqual (screen c1 c2) (rgb 255 255 0))
         , test "Overlay" (assertEqual (overlay c1 c2) (rgb 255 204 0))
         , test "Softlight" (assertEqual (softlight c1 c2) (rgb 255 161 0))
@@ -73,12 +73,21 @@ blending =
         ]
 
 
+interpolation : Test
+interpolation =
+    suite
+        "Interpolate"
+        [ test "Mix" (assertEqual (interpolate RGB (rgba 0 0 0 0) (rgba 255 255 255 1) 0.5) (rgba 128 128 128 0.5))
+        ]
+
+
 p1 : Palette
 p1 =
     [ rgb 200 0 200
     , rgb 0 100 100
     , rgb 100 0 0
     ]
+
 
 p1Result : Palette
 p1Result =
@@ -89,12 +98,14 @@ p1Result =
     , rgb 100 0 0
     ]
 
+
 p2 : Gradient
 p2 =
-    [ (0, rgb 200 0 200)
-    , (0.25, rgb 0 100 100)
-    , (1, rgb 150 175 160)
+    [ ( 0, rgb 200 0 200 )
+    , ( 0.25, rgb 0 100 100 )
+    , ( 1, rgb 150 175 160 )
     ]
+
 
 p2Result : Palette
 p2Result =
@@ -110,8 +121,8 @@ gradient : Test
 gradient =
     suite
         "Gradient"
-        [ test "Gradient from list" (assertEqual (Gra.gradient p1 5) p1Result)
-        , test "Gradient from stops" (assertEqual (Gra.gradientFromStops p2 5) p2Result)
+        [ test "Gradient from list" (assertEqual (Gra.gradient RGB p1 5) p1Result)
+        , test "Gradient from stops" (assertEqual (Gra.gradientFromStops RGB p2 5) p2Result)
         ]
 
 
@@ -123,4 +134,5 @@ all =
         , manipulate
         , blending
         , gradient
+        , interpolation
         ]
