@@ -18,6 +18,14 @@ import Char
 import String
 
 
+type alias XYZ =
+    { x : Float, y : Float, z : Float }
+
+
+type alias Lab =
+    { l : Float, a : Float, b : Float }
+
+
 {-|
 Converts a color to an css rgb string.
 
@@ -185,7 +193,24 @@ toRadix n =
 -}
 colorToLab : Color -> { l : Float, a : Float, b : Float }
 colorToLab cl =
+    colorToXyz cl |> xyzToLab
+
+
+colorToXyz : Color -> XYZ
+colorToXyz cl =
     let
+        c ch =
+            let
+                ch' = (toFloat ch) / 255
+
+                ch'' =
+                    if ch' > 4.045e-2 then
+                        ((ch' + 5.5e-2) / 1.055) ^ 2.4
+                    else
+                        ch' / 12.92
+            in
+                ch'' * 100
+
         { red, green, blue } = toRgb cl
 
         r = c red
@@ -193,79 +218,77 @@ colorToLab cl =
         g = c green
 
         b = c blue
-
-        x = l ((r * 0.4124 + g * 0.3576 + b * 0.1805) / 95.047)
-
-        y = l ((r * 0.2126 + g * 0.7152 + b * 7.22e-2) / 100)
-
-        z = l ((r * 1.93e-2 + g * 0.1192 + b * 0.9505) / 108.883)
     in
-        { l = (116 * y) - 16
-        , a = 500 * (x - y)
-        , b = 200 * (y - z)
+        { x = r * 0.4124 + g * 0.3576 + b * 0.1805
+        , y = r * 0.2126 + g * 0.7152 + b * 7.22e-2
+        , z = r * 1.93e-2 + g * 0.1192 + b * 0.9505
         }
 
 
-c : Int -> Float
-c ch =
+xyzToLab : XYZ -> Lab
+xyzToLab { x, y, z } =
     let
-        ch' = (toFloat ch) / 255
-
-        ch'' =
-            if ch' > 4.045e-2 then
-                ((ch' + 5.5e-2) / 1.055) ^ 2.4
+        c ch =
+            if ch > 8.856e-3 then
+                ch ^ (1 / 3)
             else
-                ch' / 12.92
+                (7.787 * ch) + (16 / 116)
+
+        x' = c (x / 95.047)
+
+        y' = c (y / 100)
+
+        z' = c (z / 108.883)
     in
-        ch'' * 100
-
-
-l : Float -> Float
-l ch =
-    if ch > 8.856e-3 then
-        ch ^ (1 / 3)
-    else
-        (7.787 * ch) + (16 / 116)
+        { l = (116 * y') - 16
+        , a = 500 * (x' - y')
+        , b = 200 * (y' - z')
+        }
 
 
 {-| Convert a color in CIELAB- color space to Elm `Color`
 -}
 labToColor : { l : Float, a : Float, b : Float } -> Color
 labToColor lab =
-    let
-        { x, y, z } = xyz lab
-    in
-        rgb
-            (round ((f (x * 3.2404542 + y * -1.5371385 + z * -0.4986)) * 255))
-            (round ((f (x * -0.969266 + y * 1.8760108 + z * 4.1556e-2)) * 255))
-            (round ((f (x * 5.56434e-2 + y * 0.2040259 + z * 1.0572252)) * 255))
+    labToXyz lab |> xyzToColor
 
 
-xyz : { l : Float, a : Float, b : Float } -> { x : Float, y : Float, z : Float }
-xyz { l, a, b } =
+labToXyz : Lab -> XYZ
+labToXyz { l, a, b } =
     let
+        c ch =
+            let
+                ch' = ch * ch * ch
+            in
+                if ch' > 8.856e-3 then
+                    ch'
+                else
+                    (ch - 16 / 116) / 7.787
+
         y = (l + 16) / 116
     in
-        { y = d y
-        , x = (d (y + a / 500)) * 0.95047
-        , z = (d (y - b / 200)) * 1.08883
+        { y = (c y) * 100
+        , x = (c (y + a / 500)) * 95.047
+        , z = (c (y - b / 200)) * 108.883
         }
 
 
-d : Float -> Float
-d ch =
+xyzToColor : XYZ -> Color
+xyzToColor { x, y, z } =
     let
-        ch' = ch * ch * ch
+        x' = x / 100
+
+        y' = y / 100
+
+        z' = z / 100
+
+        c ch =
+            if ch > 3.1308e-3 then
+                1.055 * (ch ^ (1 / 2.4)) - 5.5e-2
+            else
+                12.92 * ch
     in
-        if ch' > 8.856e-3 then
-            ch'
-        else
-            (ch - 16 / 116) / 7.787
-
-
-f : Float -> Float
-f ch =
-    if ch > 3.1308e-3 then
-        1.055 * (ch ^ (1 / 2.4)) - 5.5e-2
-    else
-        12.92 * ch
+        rgb
+            (round ((c (x' * 3.2404542 + y' * -1.5371385 + z' * -0.4986)) * 255))
+            (round ((c (x' * -0.969266 + y' * 1.8760108 + z' * 4.1556e-2)) * 255))
+            (round ((c (x' * 5.56434e-2 + y' * 0.2040259 + z' * 1.0572252)) * 255))
