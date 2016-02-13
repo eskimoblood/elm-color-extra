@@ -38,7 +38,7 @@ type alias Gradient =
       , rgb 0 100 100
       , rgb 100 0 0
       ]
-    gradient p1 5 -- [RGBA 200 0 200 1,RGBA 100 50 150 1,RGBA 0 100 100 1,RGBA 50 50 50 1,RGBA 100 0 0 1]
+    gradient RGB p1 5 -- [RGBA 200 0 200 1,RGBA 100 50 150 1,RGBA 0 100 100 1,RGBA 50 50 50 1,RGBA 100 0 0 1]
 -}
 gradient : Space -> Palette -> Int -> Palette
 gradient space palette size =
@@ -59,7 +59,7 @@ gradient space palette size =
       , (0.25, rgb 0 100 100)
       , (1, rgb 150 175 160)
       ]
-    gradientFromStops g 5 -- [RGBA 200 0 200 1,RGBA 0 100 100 1,RGBA 50 125 120 1,RGBA 100 150 140 1,RGBA 150 175 160 1]
+    gradientFromStops RGB g 5 -- [RGBA 200 0 200 1,RGBA 0 100 100 1,RGBA 50 125 120 1,RGBA 100 150 140 1,RGBA 150 175 160 1]
 -}
 gradientFromStops : Space -> Gradient -> Int -> Palette
 gradientFromStops space stops size =
