@@ -1,4 +1,4 @@
-module Tests (..) where
+module Tests exposing (..)
 
 import ElmTest exposing (..)
 import Color.Convert exposing (..)
@@ -11,8 +11,7 @@ import Color exposing (Color, rgb, rgba, hsl, hsla)
 
 convert : Test
 convert =
-    suite
-        "Convert"
+    suite "Convert"
         [ test "Color to rgb String" (assertEqual (colorToCssRgb (rgb 255 125 0)) "rgb(255, 125, 0)")
         , test "Color to rgba String" (assertEqual (colorToCssRgba (rgba 255 125 0 0.3)) "rgba(255, 125, 0, 0.3)")
         , test "Color to hsl String" (assertEqual (colorToCssHsl (hsl 0.4 0.2 0)) "hsl(23, 20%, 0%)")
@@ -26,8 +25,7 @@ convert =
 
 manipulate : Test
 manipulate =
-    suite
-        "Manipulate"
+    suite "Manipulate"
         [ test "Darken" (assertEqual (Man.darken 0.5 (hsl 1 1 1)) (hsl 1 1 0.5))
         , test "Darken should be limit to 0" (assertEqual (Man.darken 10 (hsl 1 1 1)) (hsl 1 1 0))
         , test "Lighten" (assertEqual (Man.lighten 0.5 (hsl 1 1 0.2)) (hsl 1 1 0.7))
@@ -59,8 +57,7 @@ c2 =
 
 blending : Test
 blending =
-    suite
-        "Blending"
+    suite "Blending"
         [ test "Multiply" (assertEqual (multiply c1 c2) (rgb 0 102 0))
         , test "Screen" (assertEqual (screen c1 c2) (rgb 255 255 0))
         , test "Overlay" (assertEqual (overlay c1 c2) (rgb 255 204 0))
@@ -75,8 +72,7 @@ blending =
 
 interpolation : Test
 interpolation =
-    suite
-        "Interpolate"
+    suite "Interpolate"
         [ test "Mix" (assertEqual (interpolate RGB (rgba 0 0 0 0) (rgba 255 255 255 1) 0.5) (rgba 128 128 128 0.5))
         ]
 
@@ -119,8 +115,7 @@ p2Result =
 
 gradient : Test
 gradient =
-    suite
-        "Gradient"
+    suite "Gradient"
         [ test "Gradient from list" (assertEqual (Gra.gradient RGB p1 5) p1Result)
         , test "Gradient from stops" (assertEqual (Gra.gradientFromStops RGB p2 5) p2Result)
         ]
@@ -128,8 +123,7 @@ gradient =
 
 all : Test
 all =
-    suite
-        "All tests"
+    suite "All tests"
         [ convert
         , manipulate
         , blending

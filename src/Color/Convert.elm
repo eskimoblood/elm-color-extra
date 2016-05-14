@@ -1,4 +1,4 @@
-module Color.Convert (colorToCssRgb, colorToCssRgba, colorToCssHsl, colorToCssHsla, colorToHex, hexToColor, colorToLab, labToColor) where
+module Color.Convert exposing (colorToCssRgb, colorToCssRgba, colorToCssHsl, colorToCssHsla, colorToHex, hexToColor, colorToLab, labToColor)
 
 {-|
 #Convert
@@ -34,7 +34,8 @@ Converts a color to an css rgb string.
 colorToCssRgb : Color -> String
 colorToCssRgb cl =
     let
-        { red, green, blue, alpha } = toRgb cl
+        { red, green, blue, alpha } =
+            toRgb cl
     in
         cssColorString "rgb" [ (toString red), (toString green), (toString blue) ]
 
@@ -47,7 +48,8 @@ Converts a color to an css rgba string.
 colorToCssRgba : Color -> String
 colorToCssRgba cl =
     let
-        { red, green, blue, alpha } = toRgb cl
+        { red, green, blue, alpha } =
+            toRgb cl
     in
         cssColorString "rgba" [ (toString red), (toString green), (toString blue), (toString alpha) ]
 
@@ -60,7 +62,8 @@ Converts a color to an css hsl string.
 colorToCssHsl : Color -> String
 colorToCssHsl cl =
     let
-        { hue, saturation, lightness, alpha } = toHsl cl
+        { hue, saturation, lightness, alpha } =
+            toHsl cl
     in
         cssColorString "hsl" [ (hueToString hue), (toPercentString saturation), (toPercentString lightness) ]
 
@@ -73,7 +76,8 @@ Converts a color to an css hsla string.
 colorToCssHsla : Color -> String
 colorToCssHsla cl =
     let
-        { hue, saturation, lightness, alpha } = toHsl cl
+        { hue, saturation, lightness, alpha } =
+            toHsl cl
     in
         cssColorString "hsla" [ (hueToString hue), (toPercentString saturation), (toPercentString lightness), (toString alpha) ]
 
@@ -122,11 +126,14 @@ hexToColor c =
                             |> List.filterMap identity
                             |> Array.fromList
 
-                    r = Array.get 0 v
+                    r =
+                        Array.get 0 v
 
-                    g = Array.get 1 v
+                    g =
+                        Array.get 1 v
 
-                    b = Array.get 2 v
+                    b =
+                        Array.get 2 v
                 in
                     case r of
                         Just r' ->
@@ -158,7 +165,8 @@ Converts a color to a hexadecimal string.
 colorToHex : Color -> String
 colorToHex cl =
     let
-        { red, green, blue, alpha } = toRgb cl
+        { red, green, blue, alpha } =
+            toRgb cl
     in
         "#" ++ (toHex red) ++ (toHex green) ++ (toHex blue)
 
@@ -166,7 +174,8 @@ colorToHex cl =
 toHex : Int -> String
 toHex n =
     let
-        hex = toRadix n
+        hex =
+            toRadix n
     in
         if String.length hex == 1 then
             "0" ++ hex
@@ -201,7 +210,8 @@ colorToXyz cl =
     let
         c ch =
             let
-                ch' = (toFloat ch) / 255
+                ch' =
+                    (toFloat ch) / 255
 
                 ch'' =
                     if ch' > 4.045e-2 then
@@ -211,13 +221,17 @@ colorToXyz cl =
             in
                 ch'' * 100
 
-        { red, green, blue } = toRgb cl
+        { red, green, blue } =
+            toRgb cl
 
-        r = c red
+        r =
+            c red
 
-        g = c green
+        g =
+            c green
 
-        b = c blue
+        b =
+            c blue
     in
         { x = r * 0.4124 + g * 0.3576 + b * 0.1805
         , y = r * 0.2126 + g * 0.7152 + b * 7.22e-2
@@ -234,11 +248,14 @@ xyzToLab { x, y, z } =
             else
                 (7.787 * ch) + (16 / 116)
 
-        x' = c (x / 95.047)
+        x' =
+            c (x / 95.047)
 
-        y' = c (y / 100)
+        y' =
+            c (y / 100)
 
-        z' = c (z / 108.883)
+        z' =
+            c (z / 108.883)
     in
         { l = (116 * y') - 16
         , a = 500 * (x' - y')
@@ -258,14 +275,16 @@ labToXyz { l, a, b } =
     let
         c ch =
             let
-                ch' = ch * ch * ch
+                ch' =
+                    ch * ch * ch
             in
                 if ch' > 8.856e-3 then
                     ch'
                 else
                     (ch - 16 / 116) / 7.787
 
-        y = (l + 16) / 116
+        y =
+            (l + 16) / 116
     in
         { y = (c y) * 100
         , x = (c (y + a / 500)) * 95.047
@@ -276,11 +295,14 @@ labToXyz { l, a, b } =
 xyzToColor : XYZ -> Color
 xyzToColor { x, y, z } =
     let
-        x' = x / 100
+        x' =
+            x / 100
 
-        y' = y / 100
+        y' =
+            y / 100
 
-        z' = z / 100
+        z' =
+            z / 100
 
         c ch =
             if ch > 3.1308e-3 then
@@ -288,7 +310,6 @@ xyzToColor { x, y, z } =
             else
                 12.92 * ch
     in
-        rgb
-            (round ((c (x' * 3.2404542 + y' * -1.5371385 + z' * -0.4986)) * 255))
+        rgb (round ((c (x' * 3.2404542 + y' * -1.5371385 + z' * -0.4986)) * 255))
             (round ((c (x' * -0.969266 + y' * 1.8760108 + z' * 4.1556e-2)) * 255))
             (round ((c (x' * 5.56434e-2 + y' * 0.2040259 + z' * 1.0572252)) * 255))

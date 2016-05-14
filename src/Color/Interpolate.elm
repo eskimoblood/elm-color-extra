@@ -1,4 +1,4 @@
-module Color.Interpolate (Space(RGB, HSL, LAB), interpolate) where
+module Color.Interpolate exposing (Space(RGB, HSL, LAB), interpolate)
 
 {-|
 # Interpolate
@@ -34,30 +34,36 @@ degree360 =
 interpolate : Space -> Color -> Color -> Float -> Color
 interpolate space cl1 cl2 t =
     let
-        i = linear t
+        i =
+            linear t
     in
         case space of
             RGB ->
                 let
-                    cl1' = toRgb cl1
+                    cl1' =
+                        toRgb cl1
 
-                    cl2' = toRgb cl2
+                    cl2' =
+                        toRgb cl2
                 in
-                    rgba
-                        (round (i (toFloat cl1'.red) (toFloat cl2'.red)))
+                    rgba (round (i (toFloat cl1'.red) (toFloat cl2'.red)))
                         (round (i (toFloat cl1'.green) (toFloat cl2'.green)))
                         (round (i (toFloat cl1'.blue) (toFloat cl2'.blue)))
                         (i cl1'.alpha cl2'.alpha)
 
             HSL ->
                 let
-                    cl1' = toHsl cl1
+                    cl1' =
+                        toHsl cl1
 
-                    cl2' = toHsl cl2
+                    cl2' =
+                        toHsl cl2
 
-                    h1 = cl1'.hue
+                    h1 =
+                        cl1'.hue
 
-                    h2 = cl2'.hue
+                    h2 =
+                        cl2'.hue
 
                     dH =
                         if h2 > h1 && h2 - h1 > degree180 then
@@ -66,19 +72,19 @@ interpolate space cl1 cl2 t =
                             h2 + degree360 - h1
                         else
                             h2 - h1
-
                 in
-                    hsla
-                        (h1 + t * dH)
+                    hsla (h1 + t * dH)
                         (i cl1'.saturation cl2'.saturation)
                         (i cl1'.lightness cl2'.lightness)
                         (i cl1'.alpha cl2'.alpha)
 
             LAB ->
                 let
-                    lab1 = colorToLab cl1
+                    lab1 =
+                        colorToLab cl1
 
-                    lab2 = colorToLab cl2
+                    lab2 =
+                        colorToLab cl2
                 in
                     labToColor
                         { l = i lab1.l lab2.l
