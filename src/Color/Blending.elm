@@ -1,4 +1,4 @@
-module Color.Blending (multiply, screen, overlay, difference, exclusion, hardlight, softlight, colorBurn, colorDodge, lighten, darken) where
+module Color.Blending exposing (multiply, screen, overlay, difference, exclusion, hardlight, softlight, colorBurn, colorDodge, lighten, darken)
 
 {-|
 # Blending
@@ -111,16 +111,19 @@ colorDodge clB clS =
 colorBlend : (Float -> Float -> Float) -> Color -> Color -> Color
 colorBlend fn clB clS =
     let
-        rgba1 = toRgb clB
+        rgba1 =
+            toRgb clB
 
-        rgba2 = toRgb clS
+        rgba2 =
+            toRgb clS
 
-        ar = rgba2.alpha + rgba1.alpha * (1 - rgba2.alpha)
+        ar =
+            rgba2.alpha + rgba1.alpha * (1 - rgba2.alpha)
 
-        calc = calcChanel fn rgba1.alpha rgba2.alpha ar
+        calc =
+            calcChanel fn rgba1.alpha rgba2.alpha ar
     in
-        rgba
-            (calc rgba1.red rgba2.red)
+        rgba (calc rgba1.red rgba2.red)
             (calc rgba1.green rgba2.green)
             (calc rgba1.blue rgba2.blue)
             ar
@@ -129,11 +132,14 @@ colorBlend fn clB clS =
 calcChanel : (Float -> Float -> Float) -> Float -> Float -> Float -> Int -> Int -> Int
 calcChanel fn aB aS ar cB cS =
     let
-        cB' = toFloat cB / 255
+        cB' =
+            toFloat cB / 255
 
-        cS' = toFloat cS / 255
+        cS' =
+            toFloat cS / 255
 
-        cr = fn cB' cS'
+        cr =
+            fn cB' cS'
 
         cr' =
             if ar == 0 then
@@ -157,7 +163,8 @@ screen' cB cS =
 overlay' : Float -> Float -> Float
 overlay' cB cS =
     let
-        cB' = cB * 2
+        cB' =
+            cB * 2
     in
         if (cB' <= 1) then
             cB' * cS

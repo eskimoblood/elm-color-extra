@@ -2,10 +2,9 @@
   "name": "test",
   "version": "1.0.0",
   "description": "",
-  "main": "test.js",
   "scripts": {
-    "test": "node ./node_modules/elm-test/bin/elm-test TestRunner.elm"
+    "test": "elm-make --yes --output test.js TestRunner.elm && node test.js"
   },
   "author": "",
-  "license": "ISC"
+  "license": "MIT"
 }

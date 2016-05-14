@@ -1,4 +1,4 @@
-module Color.Manipulate (darken, lighten, saturate, desaturate, rotateHue, fadeIn, fadeOut, grayscale) where
+module Color.Manipulate exposing (darken, lighten, saturate, desaturate, rotateHue, fadeIn, fadeOut, grayscale)
 
 {-| A library for creating and manipulating colors.
 
@@ -21,7 +21,8 @@ limit =
 darken : Float -> Color -> Color
 darken offset cl =
     let
-        { hue, saturation, lightness, alpha } = toHsl cl
+        { hue, saturation, lightness, alpha } =
+            toHsl cl
     in
         hsla hue saturation (limit (lightness - offset)) alpha
 
@@ -38,7 +39,8 @@ lighten offset cl =
 saturate : Float -> Color -> Color
 saturate offset cl =
     let
-        { hue, saturation, lightness, alpha } = toHsl cl
+        { hue, saturation, lightness, alpha } =
+            toHsl cl
     in
         hsla hue (limit (saturation + offset)) lightness alpha
 
@@ -62,7 +64,8 @@ grayscale cl =
 fadeIn : Float -> Color -> Color
 fadeIn offset cl =
     let
-        { hue, saturation, lightness, alpha } = toHsl cl
+        { hue, saturation, lightness, alpha } =
+            toHsl cl
     in
         hsla hue saturation lightness (limit (alpha + offset))
 
@@ -79,6 +82,7 @@ fadeOut offset cl =
 rotateHue : Float -> Color -> Color
 rotateHue angle cl =
     let
-        { hue, saturation, lightness, alpha } = toHsl cl
+        { hue, saturation, lightness, alpha } =
+            toHsl cl
     in
         hsla (hue + (degrees angle)) saturation lightness alpha
