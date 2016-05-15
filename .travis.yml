@@ -1,0 +1,21 @@
+language: node_js
+sudo: false
+
+# Use a reasonably modern version of node
+node_js:
+  - node
+
+
+before_script:
+  - cd test
+  - npm install elm@0.17
+
+script:
+  - npm test
+
+# This speeds up builds by using results of previous compilations
+# https://blog.8thlight.com/rob-looby/2016/04/07/caching-elm-builds-on-travis-ci.html
+cache:
+  directories:
+    - test/elm-stuff/build-artifacts
+    - test/elm-stuff/packages
