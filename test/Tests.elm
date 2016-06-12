@@ -20,7 +20,13 @@ convert =
         , test "Hex string to hex color" (assertEqual (hexToColor "#ff00ff") (Just (rgb 255 0 255)))
         , test "Hex string to hex color" (assertEqual (hexToColor "ff00ff") (Just (rgb 255 0 255)))
         , test "Hex string to hex color" (assertEqual (hexToColor "1234") Nothing)
+        , test "Rgb to lab" (assertEqual lab1 (colorToLab (rgb 255 255 0)))
+        , test "Lab to rgb" (assertEqual (rgb 255 255 0) (labToColor lab1))
         ]
+
+lab1 : { l : Float, a : Float, b : Float }
+lab1 =
+    { l = 97.13824698129729, a = -21.555908334832285, b = 94.48248544644461 }
 
 
 manipulate : Test
