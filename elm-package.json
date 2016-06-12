@@ -1,5 +1,5 @@
 {
-    "version": "3.0.2",
+    "version": "3.0.3",
     "summary": "Additional color handling for Elm",
     "repository": "https://github.com/eskimoblood/elm-color-extra.git",
     "license": "BSD3",
