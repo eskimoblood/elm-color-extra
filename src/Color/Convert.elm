@@ -124,32 +124,11 @@ hexToColor c =
                             |> List.map parseIntHex
                             |> List.map Result.toMaybe
                             |> List.filterMap identity
-                            |> Array.fromList
-
-                    r =
-                        Array.get 0 v
-
-                    g =
-                        Array.get 1 v
-
-                    b =
-                        Array.get 2 v
                 in
-                    case r of
-                        Just r' ->
-                            case g of
-                                Just g' ->
-                                    case b of
-                                        Just b' ->
-                                            Just (rgb r' g' b')
-
-                                        Nothing ->
-                                            Nothing
-
-                                Nothing ->
-                                    Nothing
-
-                        Nothing ->
+                    case v of
+                        r::g::b::[] ->
+                            Just (rgb r g b)
+                        _ ->
                             Nothing
 
             Nothing ->
