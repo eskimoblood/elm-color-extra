@@ -1,4 +1,4 @@
-module Color.Manipulate exposing (darken, lighten, saturate, desaturate, rotateHue, fadeIn, fadeOut, grayscale)
+module Color.Manipulate exposing (darken, lighten, saturate, desaturate, rotateHue, fadeIn, fadeOut, grayscale, scaleHsl, scaleRgb)
 
 {-| A library for creating and manipulating colors.
 
@@ -86,3 +86,66 @@ rotateHue angle cl =
             toHsl cl
     in
         hsla (hue + (degrees angle)) saturation lightness alpha
+
+
+{-| Fluidly scale saturation, lightness and alpha channel.
+
+    The values of the supplied tuple scale saturation, lightness, and opacity, respectively, and have a valid range of
+    -1.0 to 1.0.
+
+    This function is inspired by and serves the same purpose as the Sass function [scale-color](http://sass-lang.com/documentation/Sass/Script/Functions.html#scale_color-instance_method).
+-}
+scaleHsl : ( Float, Float, Float ) -> Color -> Color
+scaleHsl scaleBy color =
+    let
+        ( saturationScale, lightnessScale, alphaScale ) =
+            scaleBy
+
+        hsl =
+            toHsl color
+    in
+        hsla hsl.hue
+            (scale 1.0 saturationScale hsl.saturation)
+            (scale 1.0 lightnessScale hsl.lightness)
+            (scale 1.0 alphaScale hsl.alpha)
+
+
+{-| Fluidly scale red, green, blue, and alpha channel.
+
+    The values of the supplied tuple scale red, green, blue and alpha channels, respectively, and have a valid range of
+    -1.0 to 1.0.
+
+    This function is inspired by and serves the same purpose as the Sass function [scale-color](http://sass-lang.com/documentation/Sass/Script/Functions.html#scale_color-instance_method).
+-}
+scaleRgb : ( Float, Float, Float, Float ) -> Color -> Color
+scaleRgb scaleBy color =
+    let
+        ( rScale, gScale, bScale, aScale ) =
+            scaleBy
+
+        rgb =
+            toRgb color
+    in
+        rgba
+            (round (scale 255 rScale (toFloat rgb.red)))
+            (round (scale 255 gScale (toFloat rgb.green)))
+            (round (scale 255 bScale (toFloat rgb.blue)))
+            (scale 1.0 aScale rgb.alpha)
+
+
+scale : Float -> Float -> Float -> Float
+scale max scaleAmount value =
+    let
+        clampedScale =
+            clamp -1.0 1.0 scaleAmount
+
+        clampedValue =
+            clamp 0 max value
+
+        diff =
+            if clampedScale > 0 then
+                max - clampedValue
+            else
+                clampedValue
+    in
+        clampedValue + diff * clampedScale
