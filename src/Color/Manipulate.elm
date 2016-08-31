@@ -90,10 +90,18 @@ rotateHue angle cl =
 
 {-| Fluidly scale saturation, lightness and alpha channel.
 
+    That means that lightening an already-light color with `scaleHsl` won’t change the lightness much, but lightening
+    a dark color by the same amount will change it more dramatically.
+
+    For example, the lightness of a color can be anywhere between 0 and 1.0. If `scaleHsl (0, 0.4, 0) color` is called,
+    the resulting color’s lightness will be 40% of the way between its original lightness and 1.0. If
+    `scaleHsl (0, -0.4, 0) color` is called instead, the lightness will be 40% of the way between the original
+    and 0.
+
     The values of the supplied tuple scale saturation, lightness, and opacity, respectively, and have a valid range of
     -1.0 to 1.0.
 
-    This function is inspired by and serves the same purpose as the Sass function [scale-color](http://sass-lang.com/documentation/Sass/Script/Functions.html#scale_color-instance_method).
+    This function is inspired by the Sass function [scale-color](http://sass-lang.com/documentation/Sass/Script/Functions.html#scale_color-instance_method).
 -}
 scaleHsl : ( Float, Float, Float ) -> Color -> Color
 scaleHsl scaleBy color =
@@ -110,12 +118,20 @@ scaleHsl scaleBy color =
             (scale 1.0 alphaScale hsl.alpha)
 
 
-{-| Fluidly scale red, green, blue, and alpha channel.
+{-| Fluidly scale red, green, blue, and alpha channels.
 
-    The values of the supplied tuple scale red, green, blue and alpha channels, respectively, and have a valid range of
+    That means that reddening a already-red color with `scaleRgb` won’t change the redness much, but reddening a color
+    with little or no red by the same amount will change it more dramatically.
+
+    For example, the redness of a color can be anywhere between 0 and 255. If `scaleRgb (0.4, 0, 0, 0) color` is called,
+    the resulting color’s redness will be 40% of the way between its original redness and 255. If
+    `scaleRgb (-0.4, 0, 0, 0) color` is called instead, the redness will be 40% of the way between the original
+    and 0.
+
+    The values of the supplied tuple scale red, green, blue, and alpha channels, respectively, and have a valid range of
     -1.0 to 1.0.
 
-    This function is inspired by and serves the same purpose as the Sass function [scale-color](http://sass-lang.com/documentation/Sass/Script/Functions.html#scale_color-instance_method).
+    This function is inspired by the Sass function [scale-color](http://sass-lang.com/documentation/Sass/Script/Functions.html#scale_color-instance_method).
 -}
 scaleRgb : ( Float, Float, Float, Float ) -> Color -> Color
 scaleRgb scaleBy color =
