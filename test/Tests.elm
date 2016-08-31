@@ -24,6 +24,7 @@ convert =
         , test "Lab to rgb" (assertEqual (rgb 255 255 0) (labToColor lab1))
         ]
 
+
 lab1 : { l : Float, a : Float, b : Float }
 lab1 =
     { l = 97.13824698129729, a = -21.555908334832285, b = 94.48248544644461 }
@@ -48,6 +49,20 @@ manipulate =
         , test "Rotate hue" (assertEqual (rotateHue 90 (hsla 0 1 1 0)) (hsla (degrees 90) 1 1 0))
         , test "Rotate hue with negative value" (assertEqual (rotateHue -90 (hsla 0 1 1 0)) (hsla (degrees 270) 1 1 0))
         , test "Rotate hue for more then 360°" (assertEqual (rotateHue 270 (hsla (degrees 180) 1 1 0)) (hsla (degrees 90) 1 1 0))
+        , test "Scale saturation with positive value" (assertEqual (hsl (degrees 120) 0.51 0.9) (scaleHsl ( 0.3, 0, 0 ) (hsl (degrees 120) 0.3 0.9)))
+        , test "Scale saturation with negative value" (assertEqual (hsl (degrees 120) 0.21 0.9) (scaleHsl ( -0.3, 0, 0 ) (hsl (degrees 120) 0.3 0.9)))
+        , test "Scale lightness with positive value" (assertEqual (hsl (degrees 120) 0.3 0.915) (scaleHsl ( 0, 0.15, 0 ) (hsl (degrees 120) 0.3 0.9)))
+        , test "Scale lightness with negative value" (assertEqual (hsl (degrees 120) 0.3 0.765) (scaleHsl ( 0, -0.15, 0 ) (hsl (degrees 120) 0.3 0.9)))
+        , test "Scale alpha with positive value" (assertEqual (hsla (degrees 120) 0.3 0.9 0.14) (scaleHsl ( 0, 0, 0.14 ) (hsla (degrees 120) 0.3 0.9 0)))
+        , test "Scale alpha with negative value" (assertEqual (hsla (degrees 120) 0.3 0.9 0.86) (scaleHsl ( 0, 0, -0.14 ) (hsl (degrees 120) 0.3 0.9)))
+        , test "Scale red channel with positive value" (assertEqual (rgb 186 20 30) (scaleRgb ( 0.3, 0, 0, 0 ) (rgb 157 20 30)))
+        , test "Scale red channel with negative value" (assertEqual (rgb 110 20 30) (scaleRgb ( -0.3, 0, 0, 0 ) (rgb 157 20 30)))
+        , test "Scale green channel with positive value" (assertEqual (rgb 157 55 30) (scaleRgb ( 0, 0.15, 0, 0 ) (rgb 157 20 30)))
+        , test "Scale green channel with negative value" (assertEqual (rgb 157 17 30) (scaleRgb ( 0, -0.15, 0, 0 ) (rgb 157 20 30)))
+        , test "Scale blue channel with positive value" (assertEqual (rgb 157 20 62) (scaleRgb ( 0, 0, 0.14, 0 ) (rgb 157 20 30)))
+        , test "Scale blue channel with negative value" (assertEqual (rgb 157 20 26) (scaleRgb ( 0, 0, -0.14, 0 ) (rgb 157 20 30)))
+        , test "Scale alpha channel with positive value" (assertEqual (rgba 157 20 30 0.6) (scaleRgb ( 0, 0, 0, 0.2 ) (rgba 157 20 30 0.5)))
+        , test "Scale alpha channel with negative value" (assertEqual (rgba 157 20 30 0.4) (scaleRgb ( 0, 0, 0, -0.2 ) (rgba 157 20 30 0.5)))
         ]
 
 
