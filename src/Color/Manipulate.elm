@@ -1,4 +1,4 @@
-module Color.Manipulate exposing (darken, lighten, saturate, desaturate, rotateHue, fadeIn, fadeOut, grayscale, scaleHsl, scaleRgb)
+module Color.Manipulate exposing (darken, lighten, saturate, desaturate, rotateHue, fadeIn, fadeOut, grayscale, scaleHsl, scaleRgb, mix, mixWithWeight)
 
 {-| A library for creating and manipulating colors.
 
@@ -165,3 +165,75 @@ scale max scaleAmount value =
                 clampedValue
     in
         clampedValue + diff * clampedScale
+
+
+mixWithWeight : Color -> Color -> Float -> Color
+mixWithWeight c1 c2 weight =
+    let
+        clampedWeight =
+            clamp 0.0 1.0 weight
+
+        ( r1, g1, b1, a1 ) =
+            colorToTup c1
+
+        ( r2, g2, b2, a2 ) =
+            colorToTup c2
+
+        w =
+            calculateWeight ( r1, g1, b1, a1 ) ( r2, g2, b2, a2 ) clampedWeight
+
+        rgbMixed =
+            ( mixChannel w ( r1, r2 ), mixChannel w ( g1, g2 ), mixChannel w ( b1, b2 ) )
+
+        alphaMixed =
+            a1 * clampedWeight + a2 * (1 - clampedWeight)
+    in
+        let
+            ( r, g, b ) =
+                rgbMixed
+        in
+            rgba r g b alphaMixed
+
+mix : Color -> Color -> Color
+mix c1 c2 =
+    mixWithWeight c1 c2 0.5
+
+calculateWeight : ( Float, Float, Float, Float ) -> ( Float, Float, Float, Float ) -> Float -> Float
+calculateWeight c1 c2 weight =
+    let
+        ( _, _, _, a1 ) =
+            c1
+
+        ( _, _, _, a2 ) =
+            c2
+
+        a =
+            a1 - a2
+
+        w =
+            weight * 2.0 - 1.0
+    in
+        (if w * a == -1 then
+            w
+         else
+            (w + a) / (1 + w * a) + 1
+        )
+            / 2
+
+
+mixChannel : Float -> ( Float, Float ) -> Int
+mixChannel weight channels =
+    let
+        ( c1, c2 ) =
+            channels
+    in
+        round <| c1 * weight + c2 * (1.0 - weight)
+
+
+colorToTup : Color -> ( Float, Float, Float, Float )
+colorToTup c =
+    let
+        { red, green, blue, alpha } =
+            toRgb c
+    in
+        ( toFloat red, toFloat green, toFloat blue, alpha )
