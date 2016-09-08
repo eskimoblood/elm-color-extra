@@ -1,4 +1,4 @@
-module Color.Manipulate exposing (darken, lighten, saturate, desaturate, rotateHue, fadeIn, fadeOut, grayscale, scaleHsl, scaleRgb, mix, mixWithWeight)
+module Color.Manipulate exposing (darken, lighten, saturate, desaturate, rotateHue, fadeIn, fadeOut, grayscale, scaleHsl, scaleRgb, mix, weightedMix)
 
 {-| A library for creating and manipulating colors.
 
@@ -9,6 +9,7 @@ module Color.Manipulate exposing (darken, lighten, saturate, desaturate, rotateH
 -}
 
 import Color exposing (Color, toHsl, hsla, toRgb, rgba)
+import Debug exposing (log)
 
 
 limit : Float -> Float
@@ -167,8 +168,8 @@ scale max scaleAmount value =
         clampedValue + diff * clampedScale
 
 
-mixWithWeight : Color -> Color -> Float -> Color
-mixWithWeight c1 c2 weight =
+weightedMix : Color -> Color -> Float -> Color
+weightedMix c1 c2 weight =
     let
         clampedWeight =
             clamp 0.0 1.0 weight
@@ -180,13 +181,13 @@ mixWithWeight c1 c2 weight =
             colorToTup c2
 
         w =
-            calculateWeight ( r1, g1, b1, a1 ) ( r2, g2, b2, a2 ) clampedWeight
+            calculateWeight a1 a2 clampedWeight
 
         rgbMixed =
             ( mixChannel w ( r1, r2 ), mixChannel w ( g1, g2 ), mixChannel w ( b1, b2 ) )
 
         alphaMixed =
-            a1 * clampedWeight + a2 * (1 - clampedWeight)
+            a1 * clampedWeight + a2 * (1.0 - clampedWeight)
     in
         let
             ( r, g, b ) =
@@ -194,31 +195,29 @@ mixWithWeight c1 c2 weight =
         in
             rgba r g b alphaMixed
 
+
 mix : Color -> Color -> Color
 mix c1 c2 =
-    mixWithWeight c1 c2 0.5
+    weightedMix c1 c2 0.5
 
-calculateWeight : ( Float, Float, Float, Float ) -> ( Float, Float, Float, Float ) -> Float -> Float
-calculateWeight c1 c2 weight =
+
+calculateWeight : Float -> Float -> Float -> Float
+calculateWeight a1 a2 weight =
     let
-        ( _, _, _, a1 ) =
-            c1
-
-        ( _, _, _, a2 ) =
-            c2
-
         a =
             a1 - a2
 
         w =
             weight * 2.0 - 1.0
     in
-        (if w * a == -1 then
+        ((if w * a == -1.0 then
             w
-         else
-            (w + a) / (1 + w * a) + 1
+          else
+            (w + a) / (1 + w * a)
+         )
+            + 1.0
         )
-            / 2
+            / 2.0
 
 
 mixChannel : Float -> ( Float, Float ) -> Int
