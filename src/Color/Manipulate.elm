@@ -194,17 +194,19 @@ weightedMix color1 color2 weight =
         w =
             calculateWeight c1.alpha c2.alpha clampedWeight
 
-        rgbMixed =
-            ( mixChannel w c1.red c2.red, mixChannel w c1.green c2.green, mixChannel w c1.blue c2.blue )
+        rMixed =
+            mixChannel w c1.red c2.red
+
+        gMixed =
+            mixChannel w c1.green c2.green
+
+        bMixed =
+            mixChannel w c1.blue c2.blue
 
         alphaMixed =
             c1.alpha * clampedWeight + c2.alpha * (1.0 - clampedWeight)
     in
-        let
-            ( r, g, b ) =
-                rgbMixed
-        in
-            rgba r g b alphaMixed
+        rgba rMixed gMixed bMixed alphaMixed
 
 
 {-| Mixes two colors together.  This is the same as calling `mixWithWeight` with a weight of 0.5.
