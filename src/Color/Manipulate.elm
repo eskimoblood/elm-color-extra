@@ -4,7 +4,7 @@ module Color.Manipulate exposing (darken, lighten, saturate, desaturate, rotateH
 
 
 # Color adjustment
-@docs darken, lighten, saturate, desaturate, rotateHue, fadeIn, fadeOut, grayscale, scaleHsl, scaleRgb
+@docs darken, lighten, saturate, desaturate, rotateHue, fadeIn, fadeOut, grayscale, scaleHsl, scaleRgb, mix, weightedMix
 
 -}
 
@@ -168,26 +168,37 @@ scale max scaleAmount value =
         clampedValue + diff * clampedScale
 
 
+{-| Mixes two colors together.
+
+This function takes the average of each of the RGB components, weighted by a provided value between 0 and 1.0. The
+opacity of the colors is also considered when weighting the components.
+
+The weight specifies the amount of the first color that should be included in the returned color. For example, a weight
+of 0.5 means that half the first color and half the second color should be used. A weight of 0.25 means that a quarter
+of the first color and three quarters of the second color should be used.
+
+This function uses the same algorithm as the [mix](http://sass-lang.com/documentation/Sass/Script/Functions.html#mix-instance_method) function in Sass.
+-}
 weightedMix : Color -> Color -> Float -> Color
-weightedMix c1 c2 weight =
+weightedMix color1 color2 weight =
     let
         clampedWeight =
             clamp 0.0 1.0 weight
 
-        ( r1, g1, b1, a1 ) =
-            colorToTup c1
+        c1 =
+            toRgb color1
 
-        ( r2, g2, b2, a2 ) =
-            colorToTup c2
+        c2 =
+            toRgb color2
 
         w =
-            calculateWeight a1 a2 clampedWeight
+            calculateWeight c1.alpha c2.alpha clampedWeight
 
         rgbMixed =
-            ( mixChannel w ( r1, r2 ), mixChannel w ( g1, g2 ), mixChannel w ( b1, b2 ) )
+            ( mixChannel w c1.red c2.red, mixChannel w c1.green c2.green, mixChannel w c1.blue c2.blue )
 
         alphaMixed =
-            a1 * clampedWeight + a2 * (1.0 - clampedWeight)
+            c1.alpha * clampedWeight + c2.alpha * (1.0 - clampedWeight)
     in
         let
             ( r, g, b ) =
@@ -196,6 +207,8 @@ weightedMix c1 c2 weight =
             rgba r g b alphaMixed
 
 
+{-| Mixes two colors together.  This is the same as calling `mixWithWeight` with a weight of 0.5.
+-}
 mix : Color -> Color -> Color
 mix c1 c2 =
     weightedMix c1 c2 0.5
@@ -207,32 +220,18 @@ calculateWeight a1 a2 weight =
         a =
             a1 - a2
 
-        w =
+        w1 =
             weight * 2.0 - 1.0
+
+        w2 =
+            if w1 * a == -1.0 then
+                w1
+            else
+                (w1 + a) / (1 + w1 * a)
     in
-        ((if w * a == -1.0 then
-            w
-          else
-            (w + a) / (1 + w * a)
-         )
-            + 1.0
-        )
-            / 2.0
+        (w2 + 1.0) / 2.0
 
 
-mixChannel : Float -> ( Float, Float ) -> Int
-mixChannel weight channels =
-    let
-        ( c1, c2 ) =
-            channels
-    in
-        round <| c1 * weight + c2 * (1.0 - weight)
-
-
-colorToTup : Color -> ( Float, Float, Float, Float )
-colorToTup c =
-    let
-        { red, green, blue, alpha } =
-            toRgb c
-    in
-        ( toFloat red, toFloat green, toFloat blue, alpha )
+mixChannel : Float -> Int -> Int -> Int
+mixChannel weight c1 c2 =
+    round <| (toFloat c1) * weight + (toFloat c2) * (1.0 - weight)
