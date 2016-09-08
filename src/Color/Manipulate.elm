@@ -209,7 +209,7 @@ weightedMix color1 color2 weight =
         rgba rMixed gMixed bMixed alphaMixed
 
 
-{-| Mixes two colors together.  This is the same as calling `mixWithWeight` with a weight of 0.5.
+{-| Mixes two colors together.  This is the same as calling `weightedMix` with a weight of 0.5.
 -}
 mix : Color -> Color -> Color
 mix c1 c2 =
