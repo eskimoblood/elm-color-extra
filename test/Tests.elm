@@ -63,6 +63,19 @@ manipulate =
         , test "Scale blue channel with negative value" (assertEqual (rgb 157 20 26) (scaleRgb ( 0, 0, -0.14, 0 ) (rgb 157 20 30)))
         , test "Scale alpha channel with positive value" (assertEqual (rgba 157 20 30 0.6) (scaleRgb ( 0, 0, 0, 0.2 ) (rgba 157 20 30 0.5)))
         , test "Scale alpha channel with negative value" (assertEqual (rgba 157 20 30 0.4) (scaleRgb ( 0, 0, 0, -0.2 ) (rgba 157 20 30 0.5)))
+        , test "Mix 1" (assertEqual (rgb 128 0 128) (mix (rgb 255 0 0) (rgb 0 0 255)))
+        , test "Mix 2" (assertEqual (rgb 128 128 128) (mix (rgb 255 255 0) (rgb 0 0 255)))
+        , test "Mix 3" (assertEqual (rgb 128 145 85) (mix (rgb 255 119 0) (rgb 0 170 170)))
+        , test "Mix 4" (assertEqual (rgb 64 0 191) (weightedMix (rgb 255 0 0) (rgb 0 0 255) 0.25))
+        , test "Mix 5" (assertEqual (rgba 64 0 191 0.75) (mix (rgba 255 0 0 0.5) (rgb 0 0 255)))
+        , test "Mix 6" (assertEqual (rgb 255 0 0) (weightedMix (rgb 255 0 0) (rgb 0 0 255) 1))
+        , test "Mix 7" (assertEqual (rgb 0 0 255) (weightedMix (rgb 255 0 0) (rgb 0 0 255) 0))
+        , test "Mix 8" (assertEqual (rgba 255 0 0 0.5) (mix (rgb 255 0 0) (rgba 0 0 255 0)))
+        , test "Mix 9" (assertEqual (rgba 0 0 255 0.5) (mix (rgba 255 0 0 0) (rgb 0 0 255)))
+        , test "Mix 10" (assertEqual (rgb 255 0 0) (weightedMix (rgb 255 0 0) (rgba 0 0 255 0) 1))
+        , test "Mix 11" (assertEqual (rgb 0 0 255) (weightedMix (rgba 255 0 0 0) (rgb 0 0 255) 0))
+        , test "Mix 12" (assertEqual (rgba 0 0 255 0) (weightedMix (rgb 255 0 0) (rgba 0 0 255 0) 0))
+        , test "Mix 13" (assertEqual (rgba 255 0 0 0) (weightedMix (rgba 255 0 0 0) (rgb 0 0 255) 1))
         ]
 
 

@@ -1,14 +1,15 @@
-module Color.Manipulate exposing (darken, lighten, saturate, desaturate, rotateHue, fadeIn, fadeOut, grayscale, scaleHsl, scaleRgb)
+module Color.Manipulate exposing (darken, lighten, saturate, desaturate, rotateHue, fadeIn, fadeOut, grayscale, scaleHsl, scaleRgb, mix, weightedMix)
 
 {-| A library for creating and manipulating colors.
 
 
 # Color adjustment
-@docs darken, lighten, saturate, desaturate, rotateHue, fadeIn, fadeOut, grayscale, scaleHsl, scaleRgb
+@docs darken, lighten, saturate, desaturate, rotateHue, fadeIn, fadeOut, grayscale, scaleHsl, scaleRgb, mix, weightedMix
 
 -}
 
 import Color exposing (Color, toHsl, hsla, toRgb, rgba)
+import Debug exposing (log)
 
 
 limit : Float -> Float
@@ -165,3 +166,74 @@ scale max scaleAmount value =
                 clampedValue
     in
         clampedValue + diff * clampedScale
+
+
+{-| Mixes two colors together.
+
+This function takes the average of each of the RGB components, weighted by a provided value between 0 and 1.0. The
+opacity of the colors is also considered when weighting the components.
+
+The weight specifies the amount of the first color that should be included in the returned color. For example, a weight
+of 0.5 means that half the first color and half the second color should be used. A weight of 0.25 means that a quarter
+of the first color and three quarters of the second color should be used.
+
+This function uses the same algorithm as the [mix](http://sass-lang.com/documentation/Sass/Script/Functions.html#mix-instance_method) function in Sass.
+-}
+weightedMix : Color -> Color -> Float -> Color
+weightedMix color1 color2 weight =
+    let
+        clampedWeight =
+            clamp 0 1 weight
+
+        c1 =
+            toRgb color1
+
+        c2 =
+            toRgb color2
+
+        w =
+            calculateWeight c1.alpha c2.alpha clampedWeight
+
+        rMixed =
+            mixChannel w c1.red c2.red
+
+        gMixed =
+            mixChannel w c1.green c2.green
+
+        bMixed =
+            mixChannel w c1.blue c2.blue
+
+        alphaMixed =
+            c1.alpha * clampedWeight + c2.alpha * (1 - clampedWeight)
+    in
+        rgba rMixed gMixed bMixed alphaMixed
+
+
+{-| Mixes two colors together.  This is the same as calling `weightedMix` with a weight of 0.5.
+-}
+mix : Color -> Color -> Color
+mix c1 c2 =
+    weightedMix c1 c2 0.5
+
+
+calculateWeight : Float -> Float -> Float -> Float
+calculateWeight a1 a2 weight =
+    let
+        a =
+            a1 - a2
+
+        w1 =
+            weight * 2 - 1
+
+        w2 =
+            if w1 * a == -1 then
+                w1
+            else
+                (w1 + a) / (1 + w1 * a)
+    in
+        (w2 + 1) / 2
+
+
+mixChannel : Float -> Int -> Int -> Int
+mixChannel weight c1 c2 =
+    round <| (toFloat c1) * weight + (toFloat c2) * (1 - weight)
