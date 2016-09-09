@@ -68,14 +68,14 @@ manipulate =
         , test "Mix 3" (assertEqual (rgb 128 145 85) (mix (rgb 255 119 0) (rgb 0 170 170)))
         , test "Mix 4" (assertEqual (rgb 64 0 191) (weightedMix (rgb 255 0 0) (rgb 0 0 255) 0.25))
         , test "Mix 5" (assertEqual (rgba 64 0 191 0.75) (mix (rgba 255 0 0 0.5) (rgb 0 0 255)))
-        , test "Mix 6" (assertEqual (rgb 255 0 0) (weightedMix (rgb 255 0 0) (rgb 0 0 255) 1.0))
-        , test "Mix 7" (assertEqual (rgb 0 0 255) (weightedMix (rgb 255 0 0) (rgb 0 0 255) 0.0))
-        , test "Mix 8" (assertEqual (rgba 255 0 0 0.5) (mix (rgb 255 0 0) (rgba 0 0 255 0.0)))
-        , test "Mix 9" (assertEqual (rgba 0 0 255 0.5) (mix (rgba 255 0 0 0.0) (rgb 0 0 255)))
-        , test "Mix 10" (assertEqual (rgb 255 0 0) (weightedMix (rgb 255 0 0) (rgba 0 0 255 0.0) 1.0))
-        , test "Mix 11" (assertEqual (rgb 0 0 255) (weightedMix (rgba 255 0 0 0.0) (rgb 0 0 255) 0.0))
-        , test "Mix 12" (assertEqual (rgba 0 0 255 0.0) (weightedMix (rgb 255 0 0) (rgba 0 0 255 0.0) 0.0))
-        , test "Mix 13" (assertEqual (rgba 255 0 0 0.0) (weightedMix (rgba 255 0 0 0.0) (rgb 0 0 255) 1.0))
+        , test "Mix 6" (assertEqual (rgb 255 0 0) (weightedMix (rgb 255 0 0) (rgb 0 0 255) 1))
+        , test "Mix 7" (assertEqual (rgb 0 0 255) (weightedMix (rgb 255 0 0) (rgb 0 0 255) 0))
+        , test "Mix 8" (assertEqual (rgba 255 0 0 0.5) (mix (rgb 255 0 0) (rgba 0 0 255 0)))
+        , test "Mix 9" (assertEqual (rgba 0 0 255 0.5) (mix (rgba 255 0 0 0) (rgb 0 0 255)))
+        , test "Mix 10" (assertEqual (rgb 255 0 0) (weightedMix (rgb 255 0 0) (rgba 0 0 255 0) 1))
+        , test "Mix 11" (assertEqual (rgb 0 0 255) (weightedMix (rgba 255 0 0 0) (rgb 0 0 255) 0))
+        , test "Mix 12" (assertEqual (rgba 0 0 255 0) (weightedMix (rgb 255 0 0) (rgba 0 0 255 0) 0))
+        , test "Mix 13" (assertEqual (rgba 255 0 0 0) (weightedMix (rgba 255 0 0 0) (rgb 0 0 255) 1))
         ]
 
 

@@ -183,7 +183,7 @@ weightedMix : Color -> Color -> Float -> Color
 weightedMix color1 color2 weight =
     let
         clampedWeight =
-            clamp 0.0 1.0 weight
+            clamp 0 1 weight
 
         c1 =
             toRgb color1
@@ -204,7 +204,7 @@ weightedMix color1 color2 weight =
             mixChannel w c1.blue c2.blue
 
         alphaMixed =
-            c1.alpha * clampedWeight + c2.alpha * (1.0 - clampedWeight)
+            c1.alpha * clampedWeight + c2.alpha * (1 - clampedWeight)
     in
         rgba rMixed gMixed bMixed alphaMixed
 
@@ -223,17 +223,17 @@ calculateWeight a1 a2 weight =
             a1 - a2
 
         w1 =
-            weight * 2.0 - 1.0
+            weight * 2 - 1
 
         w2 =
-            if w1 * a == -1.0 then
+            if w1 * a == -1 then
                 w1
             else
                 (w1 + a) / (1 + w1 * a)
     in
-        (w2 + 1.0) / 2.0
+        (w2 + 1) / 2
 
 
 mixChannel : Float -> Int -> Int -> Int
 mixChannel weight c1 c2 =
-    round <| (toFloat c1) * weight + (toFloat c2) * (1.0 - weight)
+    round <| (toFloat c1) * weight + (toFloat c2) * (1 - weight)
