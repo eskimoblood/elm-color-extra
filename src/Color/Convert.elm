@@ -29,7 +29,7 @@ type alias Lab =
 {-|
 Converts a color to an css rgb string.
 
-    colorToCssRgb (rgb 255 0 0 ) -- "rgb(255, 0, 0)"
+    colorToCssRgb (rgb 255 0 0) -- "rgb(255, 0, 0)"
 -}
 colorToCssRgb : Color -> String
 colorToCssRgb cl =
@@ -43,7 +43,7 @@ colorToCssRgb cl =
 {-|
 Converts a color to an css rgba string.
 
-    colorToCssRgb (rgba 255 0 0 0.5) -- "rgb(255, 0, 0, 0.5)"
+    colorToCssRgba (rgba 255 0 0 0.5) -- "rgba(255, 0, 0, 0.5)"
 -}
 colorToCssRgba : Color -> String
 colorToCssRgba cl =
@@ -57,7 +57,7 @@ colorToCssRgba cl =
 {-|
 Converts a color to an css hsl string.
 
-    colorToCssRgb (hsl 1 1 0.5) -- "hsl(1, 1, 0.5)"
+    colorToCssHsl (hsl 1 1 0.5) -- "hsl(1, 1, 0.5)"
 -}
 colorToCssHsl : Color -> String
 colorToCssHsl cl =
@@ -71,7 +71,7 @@ colorToCssHsl cl =
 {-|
 Converts a color to an css hsla string.
 
-    colorToCssRgb (hsla 1 1 0.5 1) -- "hsla(56, 100%, 50%, 1)"
+    colorToCssHsla (hsla 1 1 0.5 1) -- "hsla(56, 100%, 50%, 1)"
 -}
 colorToCssHsla : Color -> String
 colorToCssHsla cl =
