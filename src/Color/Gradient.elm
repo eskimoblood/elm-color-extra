@@ -7,6 +7,7 @@ module Color.Gradient exposing (gradient, gradientFromStops, Palette, GradientSt
 
 import Color exposing (Color)
 import Maybe exposing (..)
+import Tuple exposing (first)
 import Color.Interpolate as Interpolate exposing (interpolate, Space(RGB, HSL))
 
 
@@ -46,7 +47,7 @@ gradient space palette size =
             List.length palette - 1
 
         gr =
-            List.map2 (\i cl -> ( (toFloat i / toFloat l), cl )) [0..l] palette
+            List.map2 (\i cl -> ( (toFloat i / toFloat l), cl )) (List.range 0 l) palette
     in
         gradientFromStops space gr size
 
@@ -80,7 +81,7 @@ gradientFromStops space stops size =
                         size - 1
 
                     stops =
-                        [0..l] |> List.map (\i -> (toFloat i) / l)
+                        (List.range 0 l) |> List.map (\i -> (toFloat i) / (toFloat l))
 
                     currentStops =
                         Maybe.withDefault [] (List.tail purifiedStops)
@@ -99,23 +100,23 @@ gradientFromStops space stops size =
 c : Space -> Float -> ( GradientStop, GradientStop, Gradient, Palette ) -> ( GradientStop, GradientStop, Gradient, Palette )
 c space t ( stop1, stop2, gradient, palette ) =
     let
-        ( stop1', stop2', gradient', color ) =
+        ( stop1_, stop2_, gradient_, color ) =
             calculateGradient space stop1 stop2 gradient t
     in
-        ( stop1', stop2', gradient', (color :: palette) )
+        ( stop1_, stop2_, gradient_, (color :: palette) )
 
 
 calculateGradient : Space -> GradientStop -> GradientStop -> Gradient -> Float -> ( GradientStop, GradientStop, Gradient, Color )
 calculateGradient space stop1 stop2 gradient t =
-    if (fst stop2 < t) then
+    if (first stop2 < t) then
         let
-            stop1' =
+            stop1_ =
                 stop2
 
-            ( stop2', gradient' ) =
+            ( stop2_, gradient_ ) =
                 getNextGradientStop stop2 gradient
         in
-            ( stop1', stop2', gradient', (calculateColor space stop1' stop2' t) )
+            ( stop1_, stop2_, gradient_, (calculateColor space stop1_ stop2_ t) )
     else
         ( stop1, stop2, gradient, (calculateColor space stop1 stop2 t) )
 

@@ -40,30 +40,30 @@ interpolate space cl1 cl2 t =
         case space of
             RGB ->
                 let
-                    cl1' =
+                    cl1_ =
                         toRgb cl1
 
-                    cl2' =
+                    cl2_ =
                         toRgb cl2
                 in
-                    rgba (round (i (toFloat cl1'.red) (toFloat cl2'.red)))
-                        (round (i (toFloat cl1'.green) (toFloat cl2'.green)))
-                        (round (i (toFloat cl1'.blue) (toFloat cl2'.blue)))
-                        (i cl1'.alpha cl2'.alpha)
+                    rgba (round (i (toFloat cl1_.red) (toFloat cl2_.red)))
+                        (round (i (toFloat cl1_.green) (toFloat cl2_.green)))
+                        (round (i (toFloat cl1_.blue) (toFloat cl2_.blue)))
+                        (i cl1_.alpha cl2_.alpha)
 
             HSL ->
                 let
-                    cl1' =
+                    cl1_ =
                         toHsl cl1
 
-                    cl2' =
+                    cl2_ =
                         toHsl cl2
 
                     h1 =
-                        cl1'.hue
+                        cl1_.hue
 
                     h2 =
-                        cl2'.hue
+                        cl2_.hue
 
                     dH =
                         if h2 > h1 && h2 - h1 > degree180 then
@@ -74,9 +74,9 @@ interpolate space cl1 cl2 t =
                             h2 - h1
                 in
                     hsla (h1 + t * dH)
-                        (i cl1'.saturation cl2'.saturation)
-                        (i cl1'.lightness cl2'.lightness)
-                        (i cl1'.alpha cl2'.alpha)
+                        (i cl1_.saturation cl2_.saturation)
+                        (i cl1_.lightness cl2_.lightness)
+                        (i cl1_.alpha cl2_.alpha)
 
             LAB ->
                 let
