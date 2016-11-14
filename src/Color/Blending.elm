@@ -28,7 +28,7 @@ Multiplies the complements of the backdrop and source color values,
 -}
 screen : Color -> Color -> Color
 screen clB clS =
-    colorBlend screen' clB clS
+    colorBlend screen_ clB clS
 
 
 {-|
@@ -36,7 +36,7 @@ Multiplies or screens the colors, depending on the backdrop color value.
 -}
 overlay : Color -> Color -> Color
 overlay clB clS =
-    colorBlend overlay' clB clS
+    colorBlend overlay_ clB clS
 
 
 {-|
@@ -87,7 +87,7 @@ The effect is similar to shining a diffused spotlight on the backdrop.
 -}
 softlight : Color -> Color -> Color
 softlight clB clS =
-    colorBlend softlight' clB clS
+    colorBlend softlight_ clB clS
 
 
 {-|
@@ -96,7 +96,7 @@ Painting with white produces no change.
 -}
 colorBurn : Color -> Color -> Color
 colorBurn clB clS =
-    colorBlend colorBurn' clB clS
+    colorBlend colorBurn_ clB clS
 
 
 {-|
@@ -105,7 +105,7 @@ Painting with black produces no changes.
 -}
 colorDodge : Color -> Color -> Color
 colorDodge clB clS =
-    colorBlend colorDodge' clB clS
+    colorBlend colorDodge_ clB clS
 
 
 colorBlend : (Float -> Float -> Float) -> Color -> Color -> Color
@@ -132,22 +132,22 @@ colorBlend fn clB clS =
 calcChanel : (Float -> Float -> Float) -> Float -> Float -> Float -> Int -> Int -> Int
 calcChanel fn aB aS ar cB cS =
     let
-        cB' =
+        cB_ =
             toFloat cB / 255
 
-        cS' =
+        cS_ =
             toFloat cS / 255
 
         cr =
-            fn cB' cS'
+            fn cB_ cS_
 
-        cr' =
+        cr_ =
             if ar == 0 then
                 cr
             else
-                (aS * cS' + aB * (cB' - aS * (cB' + cS' - cr))) / ar
+                (aS * cS_ + aB * (cB_ - aS * (cB_ + cS_ - cr))) / ar
     in
-        round (clampChannel cr' * 255)
+        round (clampChannel cr_ * 255)
 
 
 clampChannel : number -> number
@@ -155,25 +155,25 @@ clampChannel =
     clamp 0 1
 
 
-screen' : Float -> Float -> Float
-screen' cB cS =
+screen_ : Float -> Float -> Float
+screen_ cB cS =
     cB + cS - cB * cS
 
 
-overlay' : Float -> Float -> Float
-overlay' cB cS =
+overlay_ : Float -> Float -> Float
+overlay_ cB cS =
     let
-        cB' =
+        cB_ =
             cB * 2
     in
-        if (cB' <= 1) then
-            cB' * cS
+        if (cB_ <= 1) then
+            cB_ * cS
         else
-            screen' (cB' - 1) cS
+            screen_ (cB_ - 1) cS
 
 
-softlight' : Float -> Float -> Float
-softlight' cB cS =
+softlight_ : Float -> Float -> Float
+softlight_ cB cS =
     let
         ( d, e ) =
             if (cS > 0.5) then
@@ -187,8 +187,8 @@ softlight' cB cS =
         cB - (1 - 2 * cS) * e * (d - cB)
 
 
-colorBurn' : Float -> Float -> Float
-colorBurn' cB cS =
+colorBurn_ : Float -> Float -> Float
+colorBurn_ cB cS =
     if cB == 1 then
         1
     else if cS == 0 then
@@ -197,8 +197,8 @@ colorBurn' cB cS =
         1 - min 1 (1 - cB) / cS
 
 
-colorDodge' : Float -> Float -> Float
-colorDodge' cB cS =
+colorDodge_ : Float -> Float -> Float
+colorDodge_ cB cS =
     if cB == 0 then
         0
     else if cS == 1 then

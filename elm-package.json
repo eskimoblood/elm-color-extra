@@ -1,5 +1,5 @@
 {
-    "version": "3.2.2",
+    "version": "3.3.0",
     "summary": "Additional color handling for Elm",
     "repository": "https://github.com/eskimoblood/elm-color-extra.git",
     "license": "BSD3",
@@ -14,8 +14,8 @@
         "Color.Interpolate"
     ],
     "dependencies": {
-        "elm-lang/core": "4.0.0 <= v < 5.0.0",
-        "fredcy/elm-parseint": "1.1.2 <= v < 2.0.0"
+        "elm-lang/core": "5.0.0 <= v < 6.0.0",
+        "fredcy/elm-parseint": "2.0.0 <= v < 3.0.0"
     },
-    "elm-version": "0.17.0 <= v < 0.18.0"
+    "elm-version": "0.18.0 <= v < 0.19.0"
 }

@@ -189,16 +189,16 @@ colorToXyz cl =
     let
         c ch =
             let
-                ch' =
+                ch_ =
                     (toFloat ch) / 255
 
-                ch'' =
-                    if ch' > 4.045e-2 then
-                        ((ch' + 5.5e-2) / 1.055) ^ 2.4
+                ch__ =
+                    if ch_ > 4.045e-2 then
+                        ((ch_ + 5.5e-2) / 1.055) ^ 2.4
                     else
-                        ch' / 12.92
+                        ch_ / 12.92
             in
-                ch'' * 100
+                ch__ * 100
 
         { red, green, blue } =
             toRgb cl
@@ -227,18 +227,18 @@ xyzToLab { x, y, z } =
             else
                 (7.787 * ch) + (16 / 116)
 
-        x' =
+        x_ =
             c (x / 95.047)
 
-        y' =
+        y_ =
             c (y / 100)
 
-        z' =
+        z_ =
             c (z / 108.883)
     in
-        { l = (116 * y') - 16
-        , a = 500 * (x' - y')
-        , b = 200 * (y' - z')
+        { l = (116 * y_) - 16
+        , a = 500 * (x_ - y_)
+        , b = 200 * (y_ - z_)
         }
 
 
@@ -254,11 +254,11 @@ labToXyz { l, a, b } =
     let
         c ch =
             let
-                ch' =
+                ch_ =
                     ch * ch * ch
             in
-                if ch' > 8.856e-3 then
-                    ch'
+                if ch_ > 8.856e-3 then
+                    ch_
                 else
                     (ch - 16 / 116) / 7.787
 
@@ -274,28 +274,28 @@ labToXyz { l, a, b } =
 xyzToColor : XYZ -> Color
 xyzToColor { x, y, z } =
     let
-        x' =
+        x_ =
             x / 100
 
-        y' =
+        y_ =
             y / 100
 
-        z' =
+        z_ =
             z / 100
 
-        r = x' * 3.2404542 + y' * -1.5371385 + z' * -0.4986
-        g = x' * -0.969266 + y' * 1.8760108 + z' * 4.1556e-2
-        b = x' * 5.56434e-2 + y' * -0.2040259 + z' * 1.0572252
+        r = x_ * 3.2404542 + y_ * -1.5371385 + z_ * -0.4986
+        g = x_ * -0.969266 + y_ * 1.8760108 + z_ * 4.1556e-2
+        b = x_ * 5.56434e-2 + y_ * -0.2040259 + z_ * 1.0572252
 
         c ch =
             let
-                ch' =
+                ch_ =
                   if ch > 3.1308e-3 then
                       1.055 * (ch ^ (1 / 2.4)) - 5.5e-2
                   else
                       12.92 * ch
              in
-                 round <| clamp 0 255 (ch' * 255)
+                 round <| clamp 0 255 (ch_ * 255)
 
     in
         rgb (c r) (c g) (c b)
