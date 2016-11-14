@@ -138,7 +138,7 @@ hexToColor c =
 {-|
 Converts a color to a hexadecimal string.
 
-    hexToColor (rgb 255 0 0) -- "#ff0000"
+    colorToHex (rgb 255 0 0) -- "#ff0000"
 
 -}
 colorToHex : Color -> String
