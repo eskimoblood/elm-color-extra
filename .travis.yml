@@ -22,8 +22,7 @@ before_install:
       cd ..;
     fi
 install:
-  - npm install -g elm
-  - npm install -g elm-test
+  - npm install -g elm elm-test
   - elm-package install -y
   - pushd tests && elm-package install -y && popd
 
