@@ -109,7 +109,7 @@ toPercentString =
 
 cssColorString : String -> List String -> String
 cssColorString kind values =
-    kind ++ "(" ++ String.join "," values ++ ")"
+    kind ++ "(" ++ String.join ", " values ++ ")"
 
 
 {-|
@@ -127,7 +127,7 @@ hexToColor =
             (Regex.regex "^#?([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2})$")
         >> List.map .submatches
         >> List.head
-        >> Result.fromMaybe "Regex Failed"
+        >> Result.fromMaybe "Parsing hex regex failed"
         >> Result.andThen
             (List.map (Maybe.map parseIntHex)
                 >> \rgbs ->

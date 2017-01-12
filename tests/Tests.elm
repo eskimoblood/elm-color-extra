@@ -24,11 +24,11 @@ convert =
         , test "Color to hex String" <|
             \() -> (Expect.equal (colorToHex (rgb 255 0 255)) "#ff00ff")
         , test "Hex string to hex color" <|
-            \() -> (Expect.equal (hexToColor "#ff00ff") (Just (rgb 255 0 255)))
+            \() -> Expect.equal (hexToColor "#ff00ff") (Ok <| rgb 255 0 255)
         , test "Hex string to hex color" <|
-            \() -> (Expect.equal (hexToColor "ff00ff") (Just (rgb 255 0 255)))
+            \() -> Expect.equal (hexToColor "ff00ff") (Ok <| rgb 255 0 255)
         , test "Hex string to hex color" <|
-            \() -> (Expect.equal (hexToColor "1234") Nothing)
+            \() -> Expect.equal (hexToColor "1234") (Err "Parsing hex regex failed")
         , test "Rgb to lab" <|
             \() -> (Expect.equal lab1 (colorToLab (rgb 255 255 0)))
         , test "Lab to rgb" <|
