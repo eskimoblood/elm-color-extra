@@ -133,7 +133,7 @@ hexToColor =
                 >> \rgbs ->
                     case rgbs of
                         (Just (Ok r)) :: (Just (Ok g)) :: (Just (Ok b)) :: [] ->
-                            Ok <| Color.rgb r g b
+                            Ok <| rgb r g b
 
                         _ ->
                             -- there could be more descriptive error cases per channel
@@ -151,7 +151,7 @@ colorToHex : Color -> String
 colorToHex cl =
     let
         { red, green, blue } =
-            Color.toRgb cl
+            toRgb cl
     in
         List.map toHex [ red, green, blue ]
             |> (::) "#"
