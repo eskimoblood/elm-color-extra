@@ -117,7 +117,7 @@ Converts a string to `Maybe` of color.
 
     hexToColor "#ff0000" -- "Ok (RGB 255 0 0)"
     hexToColor "ff0000" -- "Ok (RGB 255 0 0)"
-    hexToColor "1234" -- "Err \"Parsing colors from hex failed\""
+    hexToColor "1234" -- "Err \"Parsing hex regex failed\""
 
 -}
 hexToColor : String -> Result String Color
@@ -137,7 +137,7 @@ hexToColor =
 
                         _ ->
                             -- there could be more descriptive error cases per channel
-                            Err "Parsing colors from hex failed"
+                            Err "Parsing ints from hex failed"
             )
 
 
