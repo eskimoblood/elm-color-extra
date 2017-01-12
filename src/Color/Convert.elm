@@ -129,15 +129,14 @@ hexToColor =
         >> List.head
         >> Result.fromMaybe "Parsing hex regex failed"
         >> Result.andThen
-            (List.map (Maybe.map parseIntHex)
-                >> \rgbs ->
-                    case rgbs of
-                        (Just (Ok r)) :: (Just (Ok g)) :: (Just (Ok b)) :: [] ->
-                            Ok <| rgb r g b
+            (\rs ->
+                case List.map (Maybe.map parseIntHex) rs of
+                    (Just (Ok r)) :: (Just (Ok g)) :: (Just (Ok b)) :: [] ->
+                        Ok <| rgb r g b
 
-                        _ ->
-                            -- there could be more descriptive error cases per channel
-                            Err "Parsing ints from hex failed"
+                    _ ->
+                        -- there could be more descriptive error cases per channel
+                        Err "Parsing ints from hex failed"
             )
 
 
