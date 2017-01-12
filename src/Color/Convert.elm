@@ -11,9 +11,6 @@ import ParseInt exposing (parseIntHex)
 import Color exposing (..)
 import Regex
 import Array
-import String
-import Result
-import List
 import Char
 import String
 
@@ -37,7 +34,11 @@ colorToCssRgb cl =
         { red, green, blue, alpha } =
             toRgb cl
     in
-        cssColorString "rgb" [ (toString red), (toString green), (toString blue) ]
+        cssColorString "rgb"
+            [ toString red
+            , toString green
+            , toString blue
+            ]
 
 
 {-|
@@ -51,7 +52,12 @@ colorToCssRgba cl =
         { red, green, blue, alpha } =
             toRgb cl
     in
-        cssColorString "rgba" [ (toString red), (toString green), (toString blue), (toString alpha) ]
+        cssColorString "rgba"
+            [ toString red
+            , toString green
+            , toString blue
+            , toString alpha
+            ]
 
 
 {-|
@@ -65,7 +71,11 @@ colorToCssHsl cl =
         { hue, saturation, lightness, alpha } =
             toHsl cl
     in
-        cssColorString "hsl" [ (hueToString hue), (toPercentString saturation), (toPercentString lightness) ]
+        cssColorString "hsl"
+            [ hueToString hue
+            , toPercentString saturation
+            , toPercentString lightness
+            ]
 
 
 {-|
@@ -79,60 +89,56 @@ colorToCssHsla cl =
         { hue, saturation, lightness, alpha } =
             toHsl cl
     in
-        cssColorString "hsla" [ (hueToString hue), (toPercentString saturation), (toPercentString lightness), (toString alpha) ]
+        cssColorString "hsla"
+            [ hueToString hue
+            , toPercentString saturation
+            , toPercentString lightness
+            , toString alpha
+            ]
 
 
 hueToString : Float -> String
-hueToString h =
-    (h * 180 / pi) |> round |> toString
+hueToString =
+    (*) 180 >> flip (/) pi >> round >> toString
 
 
 toPercentString : Float -> String
-toPercentString h =
-    ((h * 100) |> round |> toString) ++ "%"
+toPercentString =
+    (*) 100 >> round >> toString >> flip (++) "%"
 
 
 cssColorString : String -> List String -> String
 cssColorString kind values =
-    kind
-        ++ "("
-        ++ (String.join ", " values)
-        ++ ")"
+    kind ++ "(" ++ String.join "," values ++ ")"
 
 
 {-|
 Converts a string to `Maybe` of color.
 
-    hexToColor "#ff0000" -- "Just RGB 255 0 0"
-    hexToColor "ff0000" -- "Just RGB 255 0 0"
-    hexToColor "1234" -- "Nothing"
+    hexToColor "#ff0000" -- "Ok (RGB 255 0 0)"
+    hexToColor "ff0000" -- "Ok (RGB 255 0 0)"
+    hexToColor "1234" -- "Err \"Parsing colors from hex failed\""
 
 -}
-hexToColor : String -> Maybe Color
-hexToColor c =
-    let
-        r =
-            Regex.find Regex.All (Regex.regex "^#?([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2})$") (String.toLower c)
-                |> List.map .submatches
-                |> List.head
-    in
-        case r of
-            Just sm ->
-                let
-                    v =
-                        List.filterMap identity sm
-                            |> List.map parseIntHex
-                            |> List.map Result.toMaybe
-                            |> List.filterMap identity
-                in
-                    case v of
-                        r::g::b::[] ->
-                            Just (rgb r g b)
-                        _ ->
-                            Nothing
+hexToColor : String -> Result String Color
+hexToColor =
+    String.toLower
+        >> Regex.find (Regex.AtMost 1)
+            (Regex.regex "^#?([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2})$")
+        >> List.map .submatches
+        >> List.head
+        >> Result.fromMaybe "Regex Failed"
+        >> Result.andThen
+            (List.map (Maybe.map parseIntHex)
+                >> \rgbs ->
+                    case rgbs of
+                        (Just (Ok r)) :: (Just (Ok g)) :: (Just (Ok b)) :: [] ->
+                            Ok <| Color.rgb r g b
 
-            Nothing ->
-                Nothing
+                        _ ->
+                            -- there could be more descriptive error cases per channel
+                            Err "Parsing colors from hex failed"
+            )
 
 
 {-|
@@ -144,22 +150,17 @@ Converts a color to a hexadecimal string.
 colorToHex : Color -> String
 colorToHex cl =
     let
-        { red, green, blue, alpha } =
-            toRgb cl
+        { red, green, blue } =
+            Color.toRgb cl
     in
-        "#" ++ (toHex red) ++ (toHex green) ++ (toHex blue)
+        List.map toHex [ red, green, blue ]
+            |> (::) "#"
+            |> String.join ""
 
 
 toHex : Int -> String
-toHex n =
-    let
-        hex =
-            toRadix n
-    in
-        if String.length hex == 1 then
-            "0" ++ hex
-        else
-            hex
+toHex =
+    toRadix >> String.padLeft 2 '0'
 
 
 toRadix : Int -> String
@@ -174,14 +175,14 @@ toRadix n =
         if n < 16 then
             getChr n
         else
-            (toRadix (n // 16)) ++ (getChr (n % 16))
+            toRadix (n // 16) ++ getChr (n % 16)
 
 
 {-| Convert color to CIELAB- color space
 -}
 colorToLab : Color -> { l : Float, a : Float, b : Float }
-colorToLab cl =
-    colorToXyz cl |> xyzToLab
+colorToLab =
+    colorToXyz >> xyzToLab
 
 
 colorToXyz : Color -> XYZ
@@ -245,8 +246,8 @@ xyzToLab { x, y, z } =
 {-| Convert a color in CIELAB- color space to Elm `Color`
 -}
 labToColor : { l : Float, a : Float, b : Float } -> Color
-labToColor lab =
-    labToXyz lab |> xyzToColor
+labToColor =
+    labToXyz >> xyzToColor
 
 
 labToXyz : Lab -> XYZ
@@ -283,19 +284,23 @@ xyzToColor { x, y, z } =
         z_ =
             z / 100
 
-        r = x_ * 3.2404542 + y_ * -1.5371385 + z_ * -0.4986
-        g = x_ * -0.969266 + y_ * 1.8760108 + z_ * 4.1556e-2
-        b = x_ * 5.56434e-2 + y_ * -0.2040259 + z_ * 1.0572252
+        r =
+            x_ * 3.2404542 + y_ * -1.5371385 + z_ * -0.4986
+
+        g =
+            x_ * -0.969266 + y_ * 1.8760108 + z_ * 4.1556e-2
+
+        b =
+            x_ * 5.56434e-2 + y_ * -0.2040259 + z_ * 1.0572252
 
         c ch =
             let
                 ch_ =
-                  if ch > 3.1308e-3 then
-                      1.055 * (ch ^ (1 / 2.4)) - 5.5e-2
-                  else
-                      12.92 * ch
-             in
-                 round <| clamp 0 255 (ch_ * 255)
-
+                    if ch > 3.1308e-3 then
+                        1.055 * (ch ^ (1 / 2.4)) - 5.5e-2
+                    else
+                        12.92 * ch
+            in
+                round <| clamp 0 255 (ch_ * 255)
     in
         rgb (c r) (c g) (c b)
