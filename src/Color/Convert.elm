@@ -1,10 +1,30 @@
-module Color.Convert exposing (colorToCssRgb, colorToCssRgba, colorToCssHsl, colorToCssHsla, colorToHex, hexToColor, colorToLab, labToColor)
+module Color.Convert
+    exposing
+        ( Luminance(..)
+        , colorToContrast
+        , colorToCssRgb
+        , colorToCssRgba
+        , colorToCssHsl
+        , colorToCssHsla
+        , colorToHex
+        , hexToColor
+        , colorToLab
+        , labToColor
+        )
 
 {-|
 #Convert
 Convert colors to differnt string formats and hexadecimal strings to colors.
 
-@docs colorToCssRgb, colorToCssRgba, colorToCssHsl, colorToCssHsla, colorToHex, hexToColor, colorToLab, labToColor
+@docs colorToContrast
+@docs colorToCssRgb
+@docs colorToCssRgba
+@docs colorToCssHsl
+@docs colorToCssHsla
+@docs colorToHex
+@docs hexToColor
+@docs colorToLab
+@docs labToColor
 -}
 
 import ParseInt exposing (parseIntHex)
@@ -15,12 +35,59 @@ import Char
 import String
 
 
+type Luminance
+    = Dark
+    | Light
+
+
 type alias XYZ =
     { x : Float, y : Float, z : Float }
 
 
 type alias Lab =
     { l : Float, a : Float, b : Float }
+
+
+{-|
+Recommends Dark or Light Luminance to contrast a given color.
+
+Formula based on:
+https://www.w3.org/TR/WCAG20/#contrast-ratiodef
+https://www.w3.org/TR/WCAG20/#relativeluminancedef
+
+    colorToContrast Color.black -- Light
+    colorToContrast Color.white -- Dark
+-}
+colorToContrast : Color -> Luminance
+colorToContrast cl =
+    let
+        l =
+            0.2126 * r + 0.7152 * g + 0.0722 * b
+
+        { r, g, b } =
+            let
+                { red, green, blue } =
+                    toRgb cl
+            in
+                { r = f red
+                , g = f green
+                , b = f blue
+                }
+
+        f c =
+            let
+                s =
+                    (toFloat c) / 255
+            in
+                if s <= 0.03928 then
+                    s / 12.92
+                else
+                    ((s + 0.055) / 1.055) ^ 2.4
+    in
+        if l > sqrt (1.05 * 0.05) - 0.05 then
+            Dark
+        else
+            Light
 
 
 {-|

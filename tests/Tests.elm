@@ -13,7 +13,11 @@ import Color exposing (Color, rgb, rgba, hsl, hsla)
 convert : Test
 convert =
     describe "Convert"
-        [ test "Color to rgb String" <|
+        [ test "Color to contrast with dark color" <|
+            \() -> Expect.equal (colorToContrast (rgb 70 70 155)) Light
+        , test "Color to contrast with light color" <|
+            \() -> Expect.equal (colorToContrast (rgb 170 170 255)) Dark
+        , test "Color to rgb String" <|
             \() -> (Expect.equal (colorToCssRgb (rgb 255 125 0)) "rgb(255, 125, 0)")
         , test "Color to rgba String" <|
             \() -> (Expect.equal (colorToCssRgba (rgba 255 125 0 0.3)) "rgba(255, 125, 0, 0.3)")
