@@ -1,8 +1,6 @@
 module Color.Convert
     exposing
-        ( Luminance(..)
-        , colorToContrast
-        , colorToCssRgb
+        ( colorToCssRgb
         , colorToCssRgba
         , colorToCssHsl
         , colorToCssHsla
@@ -10,21 +8,16 @@ module Color.Convert
         , hexToColor
         , colorToLab
         , labToColor
+        , luminance
+        , contrastRatio
         )
 
 {-|
 #Convert
 Convert colors to differnt string formats and hexadecimal strings to colors.
 
-@docs colorToContrast
-@docs colorToCssRgb
-@docs colorToCssRgba
-@docs colorToCssHsl
-@docs colorToCssHsla
-@docs colorToHex
-@docs hexToColor
-@docs colorToLab
-@docs labToColor
+@docs colorToCssRgb, colorToCssRgba, colorToCssHsl, colorToCssHsla, colorToHex
+@docs hexToColor, colorToLab, labToColor, luminance, contrastRatio
 -}
 
 import ParseInt exposing (parseIntHex)
@@ -35,59 +28,12 @@ import Char
 import String
 
 
-type Luminance
-    = Dark
-    | Light
-
-
 type alias XYZ =
     { x : Float, y : Float, z : Float }
 
 
 type alias Lab =
     { l : Float, a : Float, b : Float }
-
-
-{-|
-Recommends Dark or Light Luminance to contrast a given color.
-
-Formula based on:
-https://www.w3.org/TR/WCAG20/#contrast-ratiodef
-https://www.w3.org/TR/WCAG20/#relativeluminancedef
-
-    colorToContrast Color.black -- Light
-    colorToContrast Color.white -- Dark
--}
-colorToContrast : Color -> Luminance
-colorToContrast cl =
-    let
-        l =
-            0.2126 * r + 0.7152 * g + 0.0722 * b
-
-        { r, g, b } =
-            let
-                { red, green, blue } =
-                    toRgb cl
-            in
-                { r = f red
-                , g = f green
-                , b = f blue
-                }
-
-        f c =
-            let
-                s =
-                    (toFloat c) / 255
-            in
-                if s <= 0.03928 then
-                    s / 12.92
-                else
-                    ((s + 0.055) / 1.055) ^ 2.4
-    in
-        if l > sqrt (1.05 * 0.05) - 0.05 then
-            Dark
-        else
-            Light
 
 
 {-|
@@ -370,3 +316,62 @@ xyzToColor { x, y, z } =
                 round <| clamp 0 255 (ch_ * 255)
     in
         rgb (c r) (c g) (c b)
+
+
+{-|
+Get the relative luminance of a color represented as a Float.
+
+Formula based on:
+https://www.w3.org/TR/WCAG20/#relativeluminancedef
+
+    luminance Color.black -- 0.0
+    luminance Color.white -- 1.0
+-}
+luminance : Color -> Float
+luminance cl =
+    let
+        { r, g, b } =
+            let
+                { red, green, blue } =
+                    toRgb cl
+            in
+                { r = f red
+                , g = f green
+                , b = f blue
+                }
+
+        f c =
+            let
+                s =
+                    (toFloat c) / 255
+            in
+                if s <= 0.03928 then
+                    s / 12.92
+                else
+                    ((s + 0.055) / 1.055) ^ 2.4
+    in
+        0.2126 * r + 0.7152 * g + 0.0722 * b
+
+
+{-|
+Get the contrast ratio of two colors represented as a Float.
+
+Formula based on:
+https://www.w3.org/TR/WCAG20/#contrast-ratiodef
+
+    contrastRatio Color.black Color.white -- 21
+    contrastRatio Color.blue Color.blue -- 1
+-}
+contrastRatio : Color -> Color -> Float
+contrastRatio c1 c2 =
+    let
+        a =
+            (luminance c1) + 0.05
+
+        b =
+            (luminance c2) + 0.05
+    in
+        if a > b then
+            a / b
+        else
+            b / a
