@@ -330,15 +330,8 @@ https://www.w3.org/TR/WCAG20/#relativeluminancedef
 luminance : Color -> Float
 luminance cl =
     let
-        { r, g, b } =
-            let
-                { red, green, blue } =
-                    toRgb cl
-            in
-                { r = f red
-                , g = f green
-                , b = f blue
-                }
+        ( r, g, b ) =
+            (toRgb >> \a -> ( f a.red, f a.green, f a.blue )) cl
 
         f c =
             let
