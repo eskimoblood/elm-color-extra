@@ -1,5 +1,12 @@
 module Color.Accessibility exposing (contrastRatio, luminance, maximumContrast)
 
+{-|
+# Accessibility
+Functions to measure and maximize accessibility.
+
+@docs contrastRatio, luminance, maximumContrast
+-}
+
 import Color exposing (..)
 
 
