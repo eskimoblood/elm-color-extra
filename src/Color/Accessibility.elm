@@ -53,3 +53,24 @@ luminance cl =
                     ((srgb + 0.055) / 1.055) ^ 2.4
     in
         0.2126 * r + 0.7152 * g + 0.0722 * b
+
+
+{-|
+Returns the color with the highest contrast to the base color.
+
+bgColor = Color.darkBlue
+textOptions = [Color.white, Color.purple, Color.black]
+
+    maximumContrast bgColor textOptions -- Color.white
+-}
+maximumContrast : Color -> List Color -> Maybe Color
+maximumContrast base options =
+    let
+        compareContrast c1 c2 =
+            flip compare
+                (contrastRatio base c1)
+                (contrastRatio base c2)
+    in
+        options
+            |> List.sortWith compareContrast
+            |> List.head

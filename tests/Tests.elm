@@ -39,6 +39,16 @@ accessibility =
                 Expect.equal
                     (luminance Color.white)
                     1.0
+        , test "Maximum contrast" <|
+            \() ->
+                Expect.equal
+                    (maximumContrast Color.yellow
+                        [ Color.white
+                        , Color.darkBlue
+                        , Color.green
+                        ]
+                    )
+                    (Just Color.darkBlue)
         ]
 
 
