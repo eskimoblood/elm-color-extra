@@ -154,12 +154,11 @@ hexToColor =
             in
                 "(" ++ inner ++ ")"
 
-
         pattern =
             "^#?("
-                ++ (buildColorPattern "([a-f\\d]{2})")
+                ++ buildColorPattern "([a-f\\d]{2})"
                 ++ "|"
-                ++ (buildColorPattern "([a-f\\d])")
+                ++ buildColorPattern "([a-f\\d])"
                 ++ ")$"
     in
         String.toLower
@@ -172,13 +171,13 @@ hexToColor =
             >> Result.fromMaybe "Parsing hex regex failed"
             >> Result.andThen
                 (\colors ->
-                        case List.map (extend >> parseIntHex) colors of
-                            [ Ok r, Ok g, Ok b ] ->
-                                Ok <| rgb r g b
+                    case List.map (extend >> parseIntHex) colors of
+                        [ Ok r, Ok g, Ok b ] ->
+                            Ok <| rgb r g b
 
-                            _ ->
-                                -- there could be more descriptive error cases per channel
-                                Err "Parsing ints from hex failed"
+                        _ ->
+                            -- there could be more descriptive error cases per channel
+                            Err "Parsing ints from hex failed"
                 )
 
 
