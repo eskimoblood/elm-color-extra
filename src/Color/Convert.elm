@@ -134,8 +134,8 @@ hexToColor : String -> Result String Color
 hexToColor =
     let
         {- Converts "f" to "ff" and "ff" to "ff" -}
-        shortToFull : String -> String
-        shortToFull token =
+        extend : String -> String
+        extend token =
             case String.toList token of
                 [ token ] ->
                     String.fromList [ token, token ]
@@ -144,8 +144,8 @@ hexToColor =
                     token
 
         {- Converts "<pattern>" to "(<pattern><pattern><pattern>)" -}
-        multiplyToken : String -> String
-        multiplyToken token =
+        buildColorPattern : String -> String
+        buildColorPattern token =
             let
                 inner =
                     token
@@ -154,17 +154,12 @@ hexToColor =
             in
                 "(" ++ inner ++ ")"
 
-        fullTokensPattern =
-            multiplyToken "([a-f\\d]{2})"
-
-        shortTokensPattern =
-            multiplyToken "([a-f\\d])"
 
         pattern =
             "^#?("
-                ++ fullTokensPattern
+                ++ (buildColorPattern "([a-f\\d]{2})")
                 ++ "|"
-                ++ shortTokensPattern
+                ++ (buildColorPattern "([a-f\\d])")
                 ++ ")$"
     in
         String.toLower
@@ -176,20 +171,14 @@ hexToColor =
             >> Maybe.andThen List.tail
             >> Result.fromMaybe "Parsing hex regex failed"
             >> Result.andThen
-                (\rs ->
-                    let
-                        colors =
-                            rs
-                                |> List.map shortToFull
-                                |> List.map parseIntHex
-                    in
-                        case colors of
+                (\colors ->
+                        case List.map (extend >> parseIntHex) colors of
                             [ Ok r, Ok g, Ok b ] ->
                                 Ok <| rgb r g b
 
                             _ ->
                                 -- there could be more descriptive error cases per channel
-                                Err <| "Parsing ints from hex failed"
+                                Err "Parsing ints from hex failed"
                 )
 
 
