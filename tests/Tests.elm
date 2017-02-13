@@ -2,12 +2,54 @@ module Tests exposing (..)
 
 import Test exposing (..)
 import Expect
+import Color.Accessibility exposing (..)
 import Color.Convert exposing (..)
 import Color.Gradient as Gra exposing (..)
 import Color.Manipulate as Man exposing (..)
 import Color.Blending as Ble exposing (..)
 import Color.Interpolate as Int exposing (..)
 import Color exposing (Color, rgb, rgba, hsl, hsla)
+
+
+accessibility : Test
+accessibility =
+    describe "Accessibility"
+        [ test "Contrast ratio of black and white should be 21:1" <|
+            \() ->
+                Expect.equal
+                    (contrastRatio Color.black Color.white)
+                    21.0
+        , test "Contrast ratio of equal colors should be 1:1" <|
+            \() ->
+                Expect.equal
+                    (contrastRatio Color.blue Color.blue)
+                    1.0
+        , test "Contrast ratio color order does not matter" <|
+            \() ->
+                Expect.equal
+                    (contrastRatio Color.green Color.blue)
+                    (contrastRatio Color.blue Color.green)
+        , test "Luminance of black is the minimum possible" <|
+            \() ->
+                Expect.equal
+                    (luminance Color.black)
+                    0.0
+        , test "Luminance of white is the maximum possible" <|
+            \() ->
+                Expect.equal
+                    (luminance Color.white)
+                    1.0
+        , test "Maximum contrast" <|
+            \() ->
+                Expect.equal
+                    (maximumContrast Color.yellow
+                        [ Color.white
+                        , Color.darkBlue
+                        , Color.green
+                        ]
+                    )
+                    (Just Color.darkBlue)
+        ]
 
 
 convert : Test
@@ -184,7 +226,8 @@ gradient =
 all : Test
 all =
     describe "All tests"
-        [ convert
+        [ accessibility
+        , convert
         , manipulate
         , blending
         , gradient

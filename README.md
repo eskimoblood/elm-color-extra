@@ -3,6 +3,10 @@ Additional color handling for Elm
 
 [![Build Status](https://travis-ci.org/eskimoblood/elm-color-extra.svg?branch=master)](https://travis-ci.org/eskimoblood/elm-color-extra)
 
+## Color.Accessibility
+
+Functions to measure and maximize accessibility.
+
 ## Color.Manipulate
 
 Manipulate hue, saturation, lightning and alpha value of colors.

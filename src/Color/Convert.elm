@@ -1,10 +1,21 @@
-module Color.Convert exposing (colorToCssRgb, colorToCssRgba, colorToCssHsl, colorToCssHsla, colorToHex, hexToColor, colorToLab, labToColor)
+module Color.Convert
+    exposing
+        ( colorToCssRgb
+        , colorToCssRgba
+        , colorToCssHsl
+        , colorToCssHsla
+        , colorToHex
+        , hexToColor
+        , colorToLab
+        , labToColor
+        )
 
 {-|
 #Convert
 Convert colors to differnt string formats and hexadecimal strings to colors.
 
-@docs colorToCssRgb, colorToCssRgba, colorToCssHsl, colorToCssHsla, colorToHex, hexToColor, colorToLab, labToColor
+@docs colorToCssRgb, colorToCssRgba, colorToCssHsl, colorToCssHsla, colorToHex
+@docs hexToColor, colorToLab, labToColor
 -}
 
 import ParseInt exposing (parseIntHex)
