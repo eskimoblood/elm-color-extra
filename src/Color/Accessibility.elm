@@ -74,9 +74,7 @@ maximumContrast : Color -> List Color -> Maybe Color
 maximumContrast base options =
     let
         compareContrast c1 c2 =
-            flip compare
-                (contrastRatio base c1)
-                (contrastRatio base c2)
+            compare (contrastRatio base c2) (contrastRatio base c1)
     in
         options
             |> List.sortWith compareContrast
