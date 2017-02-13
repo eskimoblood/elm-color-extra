@@ -143,31 +143,22 @@ hexToColor =
                 _ ->
                     token
 
-        {- Converts "<pattern>" to "(<pattern><pattern><pattern>)" -}
-        buildColorPattern : String -> String
-        buildColorPattern token =
-            let
-                inner =
-                    token
-                        |> List.repeat 3
-                        |> String.join ""
-            in
-                "(" ++ inner ++ ")"
-
         pattern =
-            "^#?("
-                ++ buildColorPattern "([a-f\\d]{2})"
+            ""
+                ++ "^"
+                ++ "#?"
+                ++ "(?:"
+                ++ "(?:([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2}))"
                 ++ "|"
-                ++ buildColorPattern "([a-f\\d])"
-                ++ ")$"
+                ++ "(?:([a-f\\d])([a-f\\d])([a-f\\d]))"
+                ++ ")"
+                ++ "$"
     in
         String.toLower
             >> Regex.find (Regex.AtMost 1) (Regex.regex pattern)
-            >> List.map .submatches
             >> List.head
-            >> Maybe.andThen List.tail
+            >> Maybe.map .submatches
             >> Maybe.map (List.filterMap identity)
-            >> Maybe.andThen List.tail
             >> Result.fromMaybe "Parsing hex regex failed"
             >> Result.andThen
                 (\colors ->
