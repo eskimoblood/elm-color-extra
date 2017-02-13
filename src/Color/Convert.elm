@@ -21,7 +21,6 @@ Convert colors to differnt string formats and hexadecimal strings to colors.
 import ParseInt exposing (parseIntHex)
 import Color exposing (..)
 import Regex
-import Array
 import Char
 import String
 
@@ -133,22 +132,65 @@ Converts a string to `Maybe` of color.
 -}
 hexToColor : String -> Result String Color
 hexToColor =
-    String.toLower
-        >> Regex.find (Regex.AtMost 1)
-            (Regex.regex "^#?([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2})$")
-        >> List.map .submatches
-        >> List.head
-        >> Result.fromMaybe "Parsing hex regex failed"
-        >> Result.andThen
-            (\rs ->
-                case List.map (Maybe.map parseIntHex) rs of
-                    (Just (Ok r)) :: (Just (Ok g)) :: (Just (Ok b)) :: [] ->
-                        Ok <| rgb r g b
+    let
+        {- Converts "f" to "ff" and "ff" to "ff" -}
+        shortToFull : String -> String
+        shortToFull token =
+            case String.toList token of
+                [ token ] ->
+                    String.fromList [ token, token ]
 
-                    _ ->
-                        -- there could be more descriptive error cases per channel
-                        Err "Parsing ints from hex failed"
-            )
+                _ ->
+                    token
+
+        {- Converts "<pattern>" to "(<pattern><pattern><pattern>)" -}
+        multiplyToken : String -> String
+        multiplyToken token =
+            let
+                inner =
+                    token
+                        |> List.repeat 3
+                        |> String.join ""
+            in
+                "(" ++ inner ++ ")"
+
+        fullTokensPattern =
+            multiplyToken "([a-f\\d]{2})"
+
+        shortTokensPattern =
+            multiplyToken "([a-f\\d])"
+
+        pattern =
+            "^#?("
+                ++ fullTokensPattern
+                ++ "|"
+                ++ shortTokensPattern
+                ++ ")$"
+    in
+        String.toLower
+            >> Regex.find (Regex.AtMost 1) (Regex.regex pattern)
+            >> List.map .submatches
+            >> List.head
+            >> Maybe.andThen List.tail
+            >> Maybe.map (List.filterMap identity)
+            >> Maybe.andThen List.tail
+            >> Result.fromMaybe "Parsing hex regex failed"
+            >> Result.andThen
+                (\rs ->
+                    let
+                        colors =
+                            rs
+                                |> List.map shortToFull
+                                |> List.map parseIntHex
+                    in
+                        case colors of
+                            [ Ok r, Ok g, Ok b ] ->
+                                Ok <| rgb r g b
+
+                            _ ->
+                                -- there could be more descriptive error cases per channel
+                                Err <| "Parsing ints from hex failed"
+                )
 
 
 {-|
