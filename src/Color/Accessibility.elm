@@ -65,10 +65,10 @@ luminance cl =
 {-|
 Returns the color with the highest contrast to the base color.
 
-bgColor = Color.darkBlue
-textOptions = [Color.white, Color.purple, Color.black]
+    bgColor = Color.darkBlue
+    textOptions = [ Color.white, Color.purple, Color.black ]
 
-    maximumContrast bgColor textOptions -- Color.white
+    maximumContrast bgColor textOptions -- Just Color.white
 -}
 maximumContrast : Color -> List Color -> Maybe Color
 maximumContrast base options =
