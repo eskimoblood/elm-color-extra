@@ -70,6 +70,10 @@ convert =
         , test "Hex string to hex color" <|
             \() -> Expect.equal (hexToColor "ff00ff") (Ok <| rgb 255 0 255)
         , test "Hex string to hex color" <|
+            \() -> Expect.equal (hexToColor "#f0f") (Ok <| rgb 255 0 255)
+        , test "Hex string to hex color" <|
+            \() -> Expect.equal (hexToColor "0a0") (Ok <| rgb 0 170 0)
+        , test "Hex string to hex color" <|
             \() -> Expect.equal (hexToColor "1234") (Err "Parsing hex regex failed")
         , test "Rgb to lab" <|
             \() -> (Expect.equal lab1 (colorToLab (rgb 255 255 0)))
