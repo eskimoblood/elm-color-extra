@@ -126,7 +126,9 @@ cssColorString kind values =
 Converts a string to `Maybe` of color.
 
     hexToColor "#ff0000" -- "Ok (RGB 255 0 0)"
+    hexToColor "#f00" -- "Ok (RGB 255 0 0)"
     hexToColor "ff0000" -- "Ok (RGB 255 0 0)"
+    hexToColor "f00" -- "Ok (RGB 255 0 0)"
     hexToColor "1234" -- "Err \"Parsing hex regex failed\""
 
 -}
