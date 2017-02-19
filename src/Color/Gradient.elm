@@ -175,5 +175,4 @@ calcCosineColor ( oX, oY, oZ ) ( aX, aY, aZ ) ( fX, fY, fZ ) ( pX, pY, pZ ) t =
 cosineGradient : CosineGradientSetting -> CosineGradientSetting -> CosineGradientSetting -> CosineGradientSetting -> Int -> Palette
 cosineGradient offset amp fmod phase l =
     List.range 0 l
-        |> List.map (toFloat >> (*) (1.0 / toFloat l))
-        |> List.map (calcCosineColor offset amp fmod phase)
+        |> List.map (toFloat >> (*) (1.0 / toFloat l) >> (calcCosineColor offset amp fmod phase))
