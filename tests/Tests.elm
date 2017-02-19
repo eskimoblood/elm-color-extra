@@ -222,8 +222,8 @@ p2Result =
 gradient : Test
 gradient =
     describe "Gradient"
-        [ test "Gradient from list" <| \() -> (Expect.equal (Gra.gradient RGB p1 5) p1Result)
-        , test "Gradient from stops" <| \() -> (Expect.equal (Gra.gradientFromStops RGB p2 5) p2Result)
+        [ test "Gradient from list" <| \() -> (Expect.equal (Gra.linearGradient RGB p1 5) p1Result)
+        , test "Gradient from stops" <| \() -> (Expect.equal (Gra.linearGradientFromStops RGB p2 5) p2Result)
         ]
 
 
