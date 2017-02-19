@@ -1,8 +1,8 @@
-module Color.Gradient exposing (gradient, gradientFromStops, Palette, GradientStop, Gradient)
+module Color.Gradient exposing (linearGradient, linearGradientFromStops, cosineGradient, Palette, GradientStop, Gradient, CosineGradientSetting)
 
 {-|
 # Gradient
-@docs GradientStop, Gradient, Palette, gradient, gradientFromStops
+@docs GradientStop, Gradient, Palette, linearGradient, linearGradientFromStops, CosineGradientSetting, cosineGradient
 -}
 
 import Color exposing (Color)
@@ -40,8 +40,8 @@ type alias Gradient =
       ]
     gradient RGB p1 5 -- [RGBA 200 0 200 1,RGBA 100 50 150 1,RGBA 0 100 100 1,RGBA 50 50 50 1,RGBA 100 0 0 1]
 -}
-gradient : Space -> Palette -> Int -> Palette
-gradient space palette size =
+linearGradient : Space -> Palette -> Int -> Palette
+linearGradient space palette size =
     let
         l =
             List.length palette - 1
@@ -49,7 +49,7 @@ gradient space palette size =
         gr =
             List.map2 (\i cl -> ( (toFloat i / toFloat l), cl )) (List.range 0 l) palette
     in
-        gradientFromStops space gr size
+        linearGradientFromStops space gr size
 
 
 {-| Create a new `Palette`  with gradient colors from a given `Gradient`,
@@ -63,8 +63,8 @@ gradient space palette size =
       ]
     gradientFromStops RGB g 5 -- [RGBA 200 0 200 1,RGBA 0 100 100 1,RGBA 50 125 120 1,RGBA 100 150 140 1,RGBA 150 175 160 1]
 -}
-gradientFromStops : Space -> Gradient -> Int -> Palette
-gradientFromStops space stops size =
+linearGradientFromStops : Space -> Gradient -> Int -> Palette
+linearGradientFromStops space stops size =
     let
         purifiedStops =
             stops
@@ -143,3 +143,37 @@ getNextGradientStop currentStop gradient =
 
             Nothing ->
                 ( currentStop, gradient )
+
+
+{-|
+   parameters for calculate RGB values for cosine gradients
+-}
+type alias CosineGradientSetting =
+    ( Float, Float, Float )
+
+
+calcCosine : Float -> Float -> Float -> Float -> Float -> Int
+calcCosine a b c d t =
+    (a + b * cos (pi * 2 * (c * t + d)))
+        |> (clamp 0 1)
+        |> (*) 255
+        |> round
+
+
+calcCosineColor : CosineGradientSetting -> CosineGradientSetting -> CosineGradientSetting -> CosineGradientSetting -> Float -> Color
+calcCosineColor ( oX, oY, oZ ) ( aX, aY, aZ ) ( fX, fY, fZ ) ( pX, pY, pZ ) t =
+    Color.rgb
+        (calcCosine oX aX fX pX t)
+        (calcCosine oY aY fY pY t)
+        (calcCosine oZ aZ fZ pZ t)
+
+
+{-|
+   Create a gradient based on the on an [idea by Iñigo Quílez](http://www.iquilezles.org/www/articles/palettes/palettes.htm)
+   For an interactive example have a look at Karsten Schmidt's example from his [thi.ng library](http://dev.thi.ng/gradients/)
+-}
+cosineGradient : CosineGradientSetting -> CosineGradientSetting -> CosineGradientSetting -> CosineGradientSetting -> Int -> Palette
+cosineGradient offset amp fmod phase l =
+    List.range 0 l
+        |> List.map (toFloat >> (*) (1.0 / toFloat l))
+        |> List.map (calcCosineColor offset amp fmod phase)
