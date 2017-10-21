@@ -18,6 +18,9 @@ limit =
 
 
 {-| Decrease the lightning of a color
+
+    --HSLA 0 1 0.15000000000000002 1 : Color.Color
+    darken 0.25 Color.red
 -}
 darken : Float -> Color -> Color
 darken offset cl =
@@ -29,6 +32,9 @@ darken offset cl =
 
 
 {-| Increase the lightning of a color
+
+    --HSLA 0 1 0.65 1 : Color.Color
+    lighten 0.25 Color.red
 -}
 lighten : Float -> Color -> Color
 lighten offset cl =
@@ -36,6 +42,9 @@ lighten offset cl =
 
 
 {-| Increase the saturation of a color
+
+    --HSLA 0 1 0.4 1 : Color.Color
+    saturate 0.25 Color.red
 -}
 saturate : Float -> Color -> Color
 saturate offset cl =
@@ -47,6 +56,9 @@ saturate offset cl =
 
 
 {-| Decrease the saturation of a color
+
+    --HSLA 0 0.75 0.4 1 : Color.Color
+    desaturate 0.25 Color.red
 -}
 desaturate : Float -> Color -> Color
 desaturate offset cl =
@@ -61,6 +73,9 @@ grayscale cl =
 
 
 {-| Increase the opacity of a color
+
+    --HSLA 0 1 0.4 1 : Color.Color
+    fadeIn 0.25 Color.red
 -}
 fadeIn : Float -> Color -> Color
 fadeIn offset cl =
@@ -72,6 +87,9 @@ fadeIn offset cl =
 
 
 {-| Decrease the opacity of a color
+
+    --HSLA 0 1 0.4 0.75 : Color.Color
+    fadeOut 0.25 Color.red
 -}
 fadeOut : Float -> Color -> Color
 fadeOut offset cl =
@@ -79,6 +97,9 @@ fadeOut offset cl =
 
 
 {-| Change the hue of a color. The angle value must be in degrees
+
+    --HSLA 0.004363323129985824 1 0.4 1 : Color.Color
+    rotateHue 0.25 Color.red
 -}
 rotateHue : Float -> Color -> Color
 rotateHue angle cl =
