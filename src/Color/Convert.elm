@@ -5,6 +5,7 @@ module Color.Convert
         , colorToCssHsl
         , colorToCssHsla
         , colorToHex
+        , colorToHexWithAlpha
         , hexToColor
         , colorToLab
         , labToColor
@@ -14,7 +15,7 @@ module Color.Convert
 #Convert
 Convert colors to differnt string formats and hexadecimal strings to colors.
 
-@docs colorToCssRgb, colorToCssRgba, colorToCssHsl, colorToCssHsla, colorToHex
+@docs colorToCssRgb, colorToCssRgba, colorToCssHsl, colorToCssHsla, colorToHex, colorToHexWithAlpha
 @docs hexToColor, colorToLab, labToColor
 -}
 
@@ -127,8 +128,10 @@ Converts a string to `Maybe` of color.
 
     hexToColor "#ff0000" -- "Ok (RGB 255 0 0)"
     hexToColor "#f00" -- "Ok (RGB 255 0 0)"
+    hexToColor "#ff000080" -- "Ok (RGBA 255 0 0 0.5)"
     hexToColor "ff0000" -- "Ok (RGB 255 0 0)"
     hexToColor "f00" -- "Ok (RGB 255 0 0)"
+    hexToColor "ff000080" -- "Ok (RGBA 255 0 0 0.5)"
     hexToColor "1234" -- "Err \"Parsing hex regex failed\""
 
 -}
@@ -150,9 +153,21 @@ hexToColor =
                 ++ "^"
                 ++ "#?"
                 ++ "(?:"
-                ++ "(?:([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2}))"
-                ++ "|"
+                -- RRGGBB
+                ++
+                    "(?:([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2}))"
+                -- RGB
+                ++
+                    "|"
                 ++ "(?:([a-f\\d])([a-f\\d])([a-f\\d]))"
+                -- RRGGBBAA
+                ++
+                    "|"
+                ++ "(?:([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2}))"
+                -- RGBA
+                ++
+                    "|"
+                ++ "(?:([a-f\\d])([a-f\\d])([a-f\\d])([a-f\\d]))"
                 ++ ")"
                 ++ "$"
     in
@@ -165,6 +180,9 @@ hexToColor =
             >> Result.andThen
                 (\colors ->
                     case List.map (extend >> parseIntHex) colors of
+                        [ Ok r, Ok g, Ok b, Ok a ] ->
+                            Ok <| rgba r g b (roundToPlaces 2 (toFloat a / 255))
+
                         [ Ok r, Ok g, Ok b ] ->
                             Ok <| rgb r g b
 
@@ -174,10 +192,24 @@ hexToColor =
                 )
 
 
+roundToPlaces : Int -> Float -> Float
+roundToPlaces places number =
+    let
+        multiplier =
+            toFloat (10 ^ places)
+    in
+        toFloat (round (number * multiplier)) / multiplier
+
+
 {-|
 Converts a color to a hexadecimal string.
 
-    colorToHex (rgb 255 0 0) -- "#ff0000"
+    colorToHex (rgb  255 0 0)     -- "#ff0000"
+    colorToHex (rgba 255 0 0 1.0) -- "#ff0000"
+    colorToHex (rgba 255 0 0 0.5) -- "#ff0000"
+    colorToHex (rgba 255 0 0 0.0) -- "#ff0000"
+
+If you want support for colors with alpha transparency, either use `colorToCssRgba` or `colorToHexWithAlpha`.
 
 -}
 colorToHex : Color -> String
@@ -189,6 +221,32 @@ colorToHex cl =
         List.map toHex [ red, green, blue ]
             |> (::) "#"
             |> String.join ""
+
+
+{-| Converts a color to a hexadecimal string.
+
+If the color has alpha transparency different from 1, it will use the `#RRGGBBAA` format.
+Note that the support for that is (as of March 2018) [missing](https://caniuse.com/#feat=css-rrggbbaa) on IE, Edge and some mobile browsers.
+It may be better to use `colorToCssRgba`, which has excellent support.
+
+    colorToHexWithAlpha (rgb  255 0 0)     -- "#ff0000"
+    colorToHexWithAlpha (rgba 255 0 0 1.0) -- "#ff0000"
+    colorToHexWithAlpha (rgba 255 0 0 0.5) -- "#ff000080"
+    colorToHexWithAlpha (rgba 255 0 0 0.0) -- "#ff000000"
+
+-}
+colorToHexWithAlpha : Color -> String
+colorToHexWithAlpha color =
+    let
+        { red, green, blue, alpha } =
+            toRgb color
+    in
+        if alpha == 1 then
+            colorToHex color
+        else
+            List.map toHex [ red, green, blue, round (alpha * 255) ]
+                |> (::) "#"
+                |> String.join ""
 
 
 toHex : Int -> String
