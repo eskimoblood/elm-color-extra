@@ -127,8 +127,10 @@ Converts a string to `Maybe` of color.
 
     hexToColor "#ff0000" -- "Ok (RGB 255 0 0)"
     hexToColor "#f00" -- "Ok (RGB 255 0 0)"
+    hexToColor "#ff000080" -- "Ok (RGBA 255 0 0 0.5)"
     hexToColor "ff0000" -- "Ok (RGB 255 0 0)"
     hexToColor "f00" -- "Ok (RGB 255 0 0)"
+    hexToColor "ff000080" -- "Ok (RGBA 255 0 0 0.5)"
     hexToColor "1234" -- "Err \"Parsing hex regex failed\""
 
 -}
@@ -150,9 +152,17 @@ hexToColor =
                 ++ "^"
                 ++ "#?"
                 ++ "(?:"
+                -- RRGGBB
                 ++ "(?:([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2}))"
+                -- RGB
                 ++ "|"
                 ++ "(?:([a-f\\d])([a-f\\d])([a-f\\d]))"
+                -- RRGGBBAA
+                ++ "|"
+                ++ "(?:([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2}))"
+                -- RGBA
+                ++ "|"
+                ++ "(?:([a-f\\d])([a-f\\d])([a-f\\d])([a-f\\d]))"
                 ++ ")"
                 ++ "$"
     in
@@ -165,6 +175,9 @@ hexToColor =
             >> Result.andThen
                 (\colors ->
                     case List.map (extend >> parseIntHex) colors of
+                        [ Ok r, Ok g, Ok b, Ok a ] ->
+                            Ok <| rgba r g b (roundToPlaces 2 (toFloat a / 255))
+
                         [ Ok r, Ok g, Ok b ] ->
                             Ok <| rgb r g b
 
@@ -172,6 +185,15 @@ hexToColor =
                             -- there could be more descriptive error cases per channel
                             Err "Parsing ints from hex failed"
                 )
+
+
+roundToPlaces : Int -> Float -> Float
+roundToPlaces places number =
+    let
+        multiplier =
+            toFloat (10 ^ places)
+    in
+    toFloat (round (number * multiplier)) / multiplier
 
 
 {-|
