@@ -5,6 +5,7 @@
     "license": "BSD-3-Clause",
     "version": "5.1.0",
     "exposed-modules": [
+        "Color",
         "Color.Accessibility",
         "Color.Manipulate",
         "Color.Blending",
