@@ -1,4 +1,4 @@
-module Tests exposing (..)
+module Tests exposing (accessibility, all, blending, c1, c2, convert, gradient, interpolation, lab1, manipulate, p1, p1Result, p2, p2Result)
 
 import Color exposing (Color, hsl, hsla, rgb, rgba)
 import Color.Accessibility exposing (..)
@@ -16,39 +16,31 @@ accessibility =
     describe "Accessibility"
         [ test "Contrast ratio of black and white should be 21:1" <|
             \() ->
-                Expect.equal
-                    (contrastRatio Color.black Color.white)
-                    21.0
+                contrastRatio Color.black Color.white
+                    |> Expect.equal 21.0
         , test "Contrast ratio of equal colors should be 1:1" <|
             \() ->
-                Expect.equal
-                    (contrastRatio Color.blue Color.blue)
-                    1.0
+                contrastRatio Color.blue Color.blue
+                    |> Expect.within (Expect.Absolute 0.0000001) 1.0
         , test "Contrast ratio color order does not matter" <|
             \() ->
-                Expect.equal
+                Expect.within
+                    (Expect.Absolute 0.0000001)
                     (contrastRatio Color.green Color.blue)
                     (contrastRatio Color.blue Color.green)
         , test "Luminance of black is the minimum possible" <|
             \() ->
-                Expect.equal
-                    (luminance Color.black)
-                    0.0
+                luminance Color.black
+                    |> Expect.equal 0.0
         , test "Luminance of white is the maximum possible" <|
             \() ->
-                Expect.equal
-                    (luminance Color.white)
-                    1.0
+                luminance Color.white
+                    |> Expect.equal 1.0
         , test "Maximum contrast" <|
             \() ->
-                Expect.equal
-                    (maximumContrast Color.yellow
-                        [ Color.white
-                        , Color.darkBlue
-                        , Color.green
-                        ]
-                    )
-                    (Just Color.darkBlue)
+                [ Color.white, Color.darkBlue, Color.green ]
+                    |> maximumContrast Color.yellow
+                    |> Expect.equal (Just Color.darkBlue)
         ]
 
 
@@ -56,45 +48,85 @@ convert : Test
 convert =
     describe "Convert"
         [ test "Color to rgb String" <|
-            \() -> Expect.equal (colorToCssRgb (rgb 255 125 0)) "rgb(255, 125, 0)"
+            \() ->
+                colorToCssRgb (rgb 255 125 0)
+                    |> Expect.equal "rgb(255, 125, 0)"
         , test "Color to rgba String" <|
-            \() -> Expect.equal (colorToCssRgba (rgba 255 125 0 0.3)) "rgba(255, 125, 0, 0.3)"
+            \() ->
+                colorToCssRgba (rgba 255 125 0 0.3)
+                    |> Expect.equal "rgba(255, 125, 0, 0.3)"
         , test "Color to hsl String" <|
-            \() -> Expect.equal (colorToCssHsl (hsl 0.4 0.2 0)) "hsl(23, 20%, 0%)"
+            \() ->
+                colorToCssHsl (hsl 0.4 0.2 0)
+                    |> Expect.equal "hsl(23, 20%, 0%)"
         , test "Color to hsla String" <|
-            \() -> Expect.equal (colorToCssHsla (hsla 0.4 0.2 0 1)) "hsla(23, 20%, 0%, 1)"
+            \() ->
+                colorToCssHsla (hsla 0.4 0.2 0 1)
+                    |> Expect.equal "hsla(23, 20%, 0%, 1)"
         , test "Color to hex String" <|
-            \() -> Expect.equal (colorToHex (rgb 255 0 255)) "#ff00ff"
+            \() ->
+                colorToHex (rgb 255 0 255)
+                    |> Expect.equal "#ff00ff"
         , test "Color to hex String ignores alpha" <|
-            \() -> Expect.equal (colorToHex (rgba 255 0 255 0)) "#ff00ff"
+            \() ->
+                colorToHex (rgba 255 0 255 0)
+                    |> Expect.equal "#ff00ff"
         , test "Color to hex String with alpha keeps #RRGGBB format when alpha = 1" <|
-            \() -> Expect.equal (colorToHexWithAlpha (rgb 255 0 255)) "#ff00ff"
+            \() ->
+                colorToHexWithAlpha (rgb 255 0 255)
+                    |> Expect.equal "#ff00ff"
         , test "Color to hex String with alpha keeps #RRGGBB format when alpha = 1 (explicitly)" <|
-            \() -> Expect.equal (colorToHexWithAlpha (rgba 255 0 255 1)) "#ff00ff"
+            \() ->
+                colorToHexWithAlpha (rgba 255 0 255 1)
+                    |> Expect.equal "#ff00ff"
         , test "Color to hex String with alpha uses #RRGGBBAA format when alpha /= 1" <|
-            \() -> Expect.equal (colorToHexWithAlpha (rgba 255 0 255 0.5)) "#ff00ff80"
+            \() ->
+                colorToHexWithAlpha (rgba 255 0 255 0.5)
+                    |> Expect.equal "#ff00ff80"
         , test "Hex string to hex color (#RRGGBB)" <|
-            \() -> Expect.equal (hexToColor "#ff00ff") (Ok <| rgb 255 0 255)
+            \() ->
+                hexToColor "#ff00ff"
+                    |> Expect.equal (Ok <| rgb 255 0 255)
         , test "Hex string to hex color (RRGGBB)" <|
-            \() -> Expect.equal (hexToColor "ff00ff") (Ok <| rgb 255 0 255)
+            \() ->
+                hexToColor "ff00ff"
+                    |> Expect.equal (Ok <| rgb 255 0 255)
         , test "Hex string to hex color (#RGB)" <|
-            \() -> Expect.equal (hexToColor "#f0f") (Ok <| rgb 255 0 255)
+            \() ->
+                hexToColor "#f0f"
+                    |> Expect.equal (Ok <| rgb 255 0 255)
         , test "Hex string to hex color (RGB)" <|
-            \() -> Expect.equal (hexToColor "0a0") (Ok <| rgb 0 170 0)
+            \() ->
+                hexToColor "0a0"
+                    |> Expect.equal (Ok <| rgb 0 170 0)
         , test "Hex string to hex color (#RRGGBBAA)" <|
-            \() -> Expect.equal (hexToColor "#ff00ff80") (Ok <| rgba 255 0 255 0.5)
+            \() ->
+                hexToColor "#ff00ff80"
+                    |> Expect.equal (Ok <| rgba 255 0 255 0.5)
         , test "Hex string to hex color (RRGGBBAA)" <|
-            \() -> Expect.equal (hexToColor "ff00ff80") (Ok <| rgba 255 0 255 0.5)
+            \() ->
+                hexToColor "ff00ff80"
+                    |> Expect.equal (Ok <| rgba 255 0 255 0.5)
         , test "Hex string to hex color (#RGBA)" <|
-            \() -> Expect.equal (hexToColor "#f0f0") (Ok <| rgba 255 0 255 0)
+            \() ->
+                hexToColor "#f0f0"
+                    |> Expect.equal (Ok <| rgba 255 0 255 0)
         , test "Hex string to hex color (RGBA)" <|
-            \() -> Expect.equal (hexToColor "f0f0") (Ok <| rgba 255 0 255 0)
+            \() ->
+                hexToColor "f0f0"
+                    |> Expect.equal (Ok <| rgba 255 0 255 0)
         , test "Hex string to hex color (fails)" <|
-            \() -> Expect.equal (hexToColor "12345") (Err "Parsing hex regex failed")
+            \() ->
+                hexToColor "12345"
+                    |> Expect.equal (Err "Parsing hex regex failed")
         , test "Rgb to lab" <|
-            \() -> Expect.equal lab1 (colorToLab (rgb 255 255 0))
+            \() ->
+                colorToLab (rgb 255 255 0)
+                    |> Expect.equal lab1
         , test "Lab to rgb" <|
-            \() -> Expect.equal (rgb 255 255 0) (labToColor lab1)
+            \() ->
+                labToColor lab1
+                    |> Expect.equal (rgb 255 255 0)
         ]
 
 
@@ -107,63 +139,185 @@ manipulate : Test
 manipulate =
     describe "Manipulate"
         [ test "Darken" <|
-            \() -> Expect.equal (Man.darken 0.5 (hsl 1 1 1)) (hsl 1 1 0.5)
+            \() ->
+                Man.darken 0.5 (hsl 1 1 1)
+                    |> Expect.equal (hsl 1 1 0.5)
         , test "Darken should be limit to 0" <|
-            \() -> Expect.equal (Man.darken 10 (hsl 1 1 1)) (hsl 1 1 0)
+            \() ->
+                Man.darken 10 (hsl 1 1 1)
+                    |> Expect.equal (hsl 1 1 0)
         , test "Lighten" <|
-            \() -> Expect.equal (Man.lighten 0.5 (hsl 1 1 0.2)) (hsl 1 1 0.7)
+            \() ->
+                Man.lighten 0.5 (hsl 1 1 0.2)
+                    |> Expect.equal (hsl 1 1 0.7)
         , test "Lighten should be limit to 1" <|
-            \() -> Expect.equal (Man.lighten 10 (hsl 1 1 0)) (hsl 1 1 1)
+            \() ->
+                Man.lighten 10 (hsl 1 1 0)
+                    |> Expect.equal (hsl 1 1 1)
         , test "Saturate" <|
-            \() -> Expect.equal (saturate 0.5 (hsl 1 0 1)) (hsl 1 0.5 1)
+            \() ->
+                saturate 0.5 (hsl 1 0 1)
+                    |> Expect.equal (hsl 1 0.5 1)
         , test "Saturate should be limit to 1" <|
-            \() -> Expect.equal (saturate 10 (hsl 1 1 1)) (hsl 1 1 1)
+            \() ->
+                saturate 10 (hsl 1 1 1)
+                    |> Expect.equal (hsl 1 1 1)
         , test "Desaturate" <|
-            \() -> Expect.equal (desaturate 0.5 (hsl 1 1 1)) (hsl 1 0.5 1)
+            \() ->
+                desaturate 0.5 (hsl 1 1 1)
+                    |> Expect.equal (hsl 1 0.5 1)
         , test "Desaturate should be limit to 0" <|
-            \() -> Expect.equal (desaturate 10 (hsl 1 1 1)) (hsl 1 0 1)
+            \() ->
+                desaturate 10 (hsl 1 1 1)
+                    |> Expect.equal (hsl 1 0 1)
         , test "Grayscale" <|
-            \() -> Expect.equal (Man.grayscale (hsl 1 1 1)) (hsl 1 0 1)
+            \() ->
+                Man.grayscale (hsl 1 1 1)
+                    |> Expect.equal (hsl 1 0 1)
         , test "Fade in" <|
-            \() -> Expect.equal (fadeIn 0.2 (hsla 1 1 1 0.5)) (hsla 1 1 1 0.7)
+            \() ->
+                fadeIn 0.2 (hsla 1 1 1 0.5)
+                    |> Expect.equal (hsla 1 1 1 0.7)
         , test "Fade in should be limit to 1" <|
-            \() -> Expect.equal (fadeIn 10 (hsla 1 1 1 0.5)) (hsla 1 1 1 1)
+            \() ->
+                fadeIn 10 (hsla 1 1 1 0.5)
+                    |> Expect.equal (hsla 1 1 1 1)
         , test "Fade out" <|
-            \() -> Expect.equal (fadeOut 0.2 (hsla 1 1 1 0.5)) (hsla 1 1 1 0.3)
+            \() ->
+                fadeOut 0.2 (hsla 1 1 1 0.5)
+                    |> Expect.equal (hsla 1 1 1 0.3)
         , test "Fade out should be limit to 0" <|
-            \() -> Expect.equal (fadeOut 10 (hsla 1 1 1 0.5)) (hsla 1 1 1 0)
+            \() ->
+                fadeOut 10 (hsla 1 1 1 0.5)
+                    |> Expect.equal (hsla 1 1 1 0)
         , test "Rotate hue" <|
-            \() -> Expect.equal (rotateHue 90 (hsla 0 1 1 0)) (hsla (degrees 90) 1 1 0)
+            \() ->
+                rotateHue 90 (hsla 0 1 1 0)
+                    |> Expect.equal (hsla (degrees 90) 1 1 0)
         , test "Rotate hue with negative value" <|
-            \() -> Expect.equal (rotateHue -90 (hsla 0 1 1 0)) (hsla (degrees 270) 1 1 0)
-        , test "Rotate hue for more then 360°" <| \() -> Expect.equal (rotateHue 270 (hsla (degrees 180) 1 1 0)) (hsla (degrees 90) 1 1 0)
-        , test "Scale saturation with positive value" <| \() -> Expect.equal (hsl (degrees 120) 0.51 0.9) (scaleHsl ( 0.3, 0, 0 ) (hsl (degrees 120) 0.3 0.9))
-        , test "Scale saturation with negative value" <| \() -> Expect.equal (hsl (degrees 120) 0.21 0.9) (scaleHsl ( -0.3, 0, 0 ) (hsl (degrees 120) 0.3 0.9))
-        , test "Scale lightness with positive value" <| \() -> Expect.equal (hsl (degrees 120) 0.3 0.915) (scaleHsl ( 0, 0.15, 0 ) (hsl (degrees 120) 0.3 0.9))
-        , test "Scale lightness with negative value" <| \() -> Expect.equal (hsl (degrees 120) 0.3 0.765) (scaleHsl ( 0, -0.15, 0 ) (hsl (degrees 120) 0.3 0.9))
-        , test "Scale alpha with positive value" <| \() -> Expect.equal (hsla (degrees 120) 0.3 0.9 0.14) (scaleHsl ( 0, 0, 0.14 ) (hsla (degrees 120) 0.3 0.9 0))
-        , test "Scale alpha with negative value" <| \() -> Expect.equal (hsla (degrees 120) 0.3 0.9 0.86) (scaleHsl ( 0, 0, -0.14 ) (hsl (degrees 120) 0.3 0.9))
-        , test "Scale red channel with positive value" <| \() -> Expect.equal (rgb 186 20 30) (scaleRgb ( 0.3, 0, 0, 0 ) (rgb 157 20 30))
-        , test "Scale red channel with negative value" <| \() -> Expect.equal (rgb 110 20 30) (scaleRgb ( -0.3, 0, 0, 0 ) (rgb 157 20 30))
-        , test "Scale green channel with positive value" <| \() -> Expect.equal (rgb 157 55 30) (scaleRgb ( 0, 0.15, 0, 0 ) (rgb 157 20 30))
-        , test "Scale green channel with negative value" <| \() -> Expect.equal (rgb 157 17 30) (scaleRgb ( 0, -0.15, 0, 0 ) (rgb 157 20 30))
-        , test "Scale blue channel with positive value" <| \() -> Expect.equal (rgb 157 20 62) (scaleRgb ( 0, 0, 0.14, 0 ) (rgb 157 20 30))
-        , test "Scale blue channel with negative value" <| \() -> Expect.equal (rgb 157 20 26) (scaleRgb ( 0, 0, -0.14, 0 ) (rgb 157 20 30))
-        , test "Scale alpha channel with positive value" <| \() -> Expect.equal (rgba 157 20 30 0.6) (scaleRgb ( 0, 0, 0, 0.2 ) (rgba 157 20 30 0.5))
-        , test "Scale alpha channel with negative value" <| \() -> Expect.equal (rgba 157 20 30 0.4) (scaleRgb ( 0, 0, 0, -0.2 ) (rgba 157 20 30 0.5))
-        , test "Mix 1" <| \() -> Expect.equal (rgb 128 0 128) (mix (rgb 255 0 0) (rgb 0 0 255))
-        , test "Mix 2" <| \() -> Expect.equal (rgb 128 128 128) (mix (rgb 255 255 0) (rgb 0 0 255))
-        , test "Mix 3" <| \() -> Expect.equal (rgb 128 145 85) (mix (rgb 255 119 0) (rgb 0 170 170))
-        , test "Mix 4" <| \() -> Expect.equal (rgb 64 0 191) (weightedMix (rgb 255 0 0) (rgb 0 0 255) 0.25)
-        , test "Mix 5" <| \() -> Expect.equal (rgba 64 0 191 0.75) (mix (rgba 255 0 0 0.5) (rgb 0 0 255))
-        , test "Mix 6" <| \() -> Expect.equal (rgb 255 0 0) (weightedMix (rgb 255 0 0) (rgb 0 0 255) 1)
-        , test "Mix 7" <| \() -> Expect.equal (rgb 0 0 255) (weightedMix (rgb 255 0 0) (rgb 0 0 255) 0)
-        , test "Mix 8" <| \() -> Expect.equal (rgba 255 0 0 0.5) (mix (rgb 255 0 0) (rgba 0 0 255 0))
-        , test "Mix 9" <| \() -> Expect.equal (rgba 0 0 255 0.5) (mix (rgba 255 0 0 0) (rgb 0 0 255))
-        , test "Mix 10" <| \() -> Expect.equal (rgb 255 0 0) (weightedMix (rgb 255 0 0) (rgba 0 0 255 0) 1)
-        , test "Mix 11" <| \() -> Expect.equal (rgb 0 0 255) (weightedMix (rgba 255 0 0 0) (rgb 0 0 255) 0)
-        , test "Mix 12" <| \() -> Expect.equal (rgba 0 0 255 0) (weightedMix (rgb 255 0 0) (rgba 0 0 255 0) 0)
-        , test "Mix 13" <| \() -> Expect.equal (rgba 255 0 0 0) (weightedMix (rgba 255 0 0 0) (rgb 0 0 255) 1)
+            \() ->
+                rotateHue -90 (hsla 0 1 1 0)
+                    |> Expect.equal (hsla (degrees 270) 1 1 0)
+        , test "Rotate hue for more then 360°" <|
+            \() ->
+                rotateHue 270 (hsla (degrees 180) 1 1 0)
+                    |> Expect.equal (hsla (degrees 90) 1 1 0)
+        , test "Scale saturation with positive value" <|
+            \() ->
+                scaleHsl ( 0.3, 0, 0 ) (hsl (degrees 120) 0.3 0.9)
+                    |> Expect.equal (hsl (degrees 120) 0.51 0.9)
+        , test "Scale saturation with negative value" <|
+            \() ->
+                scaleHsl ( -0.3, 0, 0 ) (hsl (degrees 120) 0.3 0.9)
+                    |> Expect.equal (hsl (degrees 120) 0.21 0.9)
+        , test "Scale lightness with positive value" <|
+            \() ->
+                scaleHsl ( 0, 0.15, 0 ) (hsl (degrees 120) 0.3 0.9)
+                    |> Expect.equal (hsl (degrees 120) 0.3 0.915)
+        , test "Scale lightness with negative value" <|
+            \() ->
+                scaleHsl ( 0, -0.15, 0 ) (hsl (degrees 120) 0.3 0.9)
+                    |> Expect.equal (hsl (degrees 120) 0.3 0.765)
+        , test "Scale alpha with positive value" <|
+            \() ->
+                scaleHsl ( 0, 0, 0.14 ) (hsla (degrees 120) 0.3 0.9 0)
+                    |> Expect.equal (hsla (degrees 120) 0.3 0.9 0.14)
+        , test "Scale alpha with negative value" <|
+            \() ->
+                scaleHsl ( 0, 0, -0.14 ) (hsl (degrees 120) 0.3 0.9)
+                    |> Expect.equal (hsla (degrees 120) 0.3 0.9 0.86)
+        , test "Scale red channel with positive value" <|
+            \() ->
+                rgb 157 20 30
+                    |> scaleRgb { red = 0.3, green = 0, blue = 0, alpha = 0 }
+                    |> Expect.equal (rgb 186 20 30)
+        , test "Scale red channel with negative value" <|
+            \() ->
+                rgb 157 20 30
+                    |> scaleRgb { red = -0.3, green = 0, blue = 0, alpha = 0 }
+                    |> Expect.equal (rgb 110 20 30)
+        , test "Scale green channel with positive value" <|
+            \() ->
+                rgb 157 20 30
+                    |> scaleRgb { red = 0, green = 0.15, blue = 0, alpha = 0 }
+                    |> Expect.equal (rgb 157 55 30)
+        , test "Scale green channel with negative value" <|
+            \() ->
+                rgb 157 20 30
+                    |> scaleRgb { red = 0, green = -0.15, blue = 0, alpha = 0 }
+                    |> Expect.equal (rgb 157 17 30)
+        , test "Scale blue channel with positive value" <|
+            \() ->
+                rgb 157 20 30
+                    |> scaleRgb { red = 0, green = 0, blue = 0.14, alpha = 0 }
+                    |> Expect.equal (rgb 157 20 62)
+        , test "Scale blue channel with negative value" <|
+            \() ->
+                rgb 157 20 30
+                    |> scaleRgb { red = 0, green = 0, blue = -0.14, alpha = 0 }
+                    |> Expect.equal (rgb 157 20 26)
+        , test "Scale alpha channel with positive value" <|
+            \() ->
+                rgba 157 20 30 0.5
+                    |> scaleRgb { red = 0, green = 0, blue = 0, alpha = 0.2 }
+                    |> Expect.equal (rgba 157 20 30 0.6)
+        , test "Scale alpha channel with negative value" <|
+            \() ->
+                rgba 157 20 30 0.5
+                    |> scaleRgb { red = 0, green = 0, blue = 0, alpha = -0.2 }
+                    |> Expect.equal (rgba 157 20 30 0.4)
+        , test "Mix 1" <|
+            \() ->
+                mix (rgb 255 0 0) (rgb 0 0 255)
+                    |> Expect.equal (rgb 128 0 128)
+        , test "Mix 2" <|
+            \() ->
+                mix (rgb 255 255 0) (rgb 0 0 255)
+                    |> Expect.equal (rgb 128 128 128)
+        , test "Mix 3" <|
+            \() ->
+                mix (rgb 255 119 0) (rgb 0 170 170)
+                    |> Expect.equal (rgb 128 145 85)
+        , test "Mix 4" <|
+            \() ->
+                weightedMix (rgb 255 0 0) (rgb 0 0 255) 0.25
+                    |> Expect.equal (rgb 64 0 191)
+        , test "Mix 5" <|
+            \() ->
+                mix (rgba 255 0 0 0.5) (rgb 0 0 255)
+                    |> Expect.equal (rgba 64 0 191 0.75)
+        , test "Mix 6" <|
+            \() ->
+                weightedMix (rgb 255 0 0) (rgb 0 0 255) 1
+                    |> Expect.equal (rgb 255 0 0)
+        , test "Mix 7" <|
+            \() ->
+                weightedMix (rgb 255 0 0) (rgb 0 0 255) 0
+                    |> Expect.equal (rgb 0 0 255)
+        , test "Mix 8" <|
+            \() ->
+                mix (rgb 255 0 0) (rgba 0 0 255 0)
+                    |> Expect.equal (rgba 255 0 0 0.5)
+        , test "Mix 9" <|
+            \() ->
+                mix (rgba 255 0 0 0) (rgb 0 0 255)
+                    |> Expect.equal (rgba 0 0 255 0.5)
+        , test "Mix 10" <|
+            \() ->
+                weightedMix (rgb 255 0 0) (rgba 0 0 255 0) 1
+                    |> Expect.equal (rgb 255 0 0)
+        , test "Mix 11" <|
+            \() ->
+                weightedMix (rgba 255 0 0 0) (rgb 0 0 255) 0
+                    |> Expect.equal (rgb 0 0 255)
+        , test "Mix 12" <|
+            \() ->
+                weightedMix (rgb 255 0 0) (rgba 0 0 255 0) 0
+                    |> Expect.equal (rgba 0 0 255 0)
+        , test "Mix 13" <|
+            \() ->
+                weightedMix (rgba 255 0 0 0) (rgb 0 0 255) 1
+                    |> Expect.equal (rgba 255 0 0 0)
         ]
 
 
@@ -180,22 +334,52 @@ c2 =
 blending : Test
 blending =
     describe "Blending"
-        [ test "Multiply" <| \() -> Expect.equal (multiply c1 c2) (rgb 0 102 0)
-        , test "Screen" <| \() -> Expect.equal (screen c1 c2) (rgb 255 255 0)
-        , test "Overlay" <| \() -> Expect.equal (overlay c1 c2) (rgb 255 204 0)
-        , test "Softlight" <| \() -> Expect.equal (softlight c1 c2) (rgb 255 161 0)
-        , test "Hardlight" <| \() -> Expect.equal (hardlight c1 c2) c2
-        , test "Difference" <| \() -> Expect.equal (difference c1 c2) (rgb 255 153 0)
-        , test "Exclusion" <| \() -> Expect.equal (exclusion c1 c2) (rgb 255 153 0)
-        , test "Darken" <| \() -> Expect.equal (Ble.darken c1 c2) (rgb 0 102 0)
-        , test "Lighten" <| \() -> Expect.equal (Ble.lighten c1 c2) (rgb 255 255 0)
+        [ test "Multiply" <|
+            \() ->
+                multiply c1 c2
+                    |> Expect.equal (rgb 0 102 0)
+        , test "Screen" <|
+            \() ->
+                screen c1 c2
+                    |> Expect.equal (rgb 255 255 0)
+        , test "Overlay" <|
+            \() ->
+                overlay c1 c2
+                    |> Expect.equal (rgb 255 204 0)
+        , test "Softlight" <|
+            \() ->
+                softlight c1 c2
+                    |> Expect.equal (rgb 255 161 0)
+        , test "Hardlight" <|
+            \() ->
+                hardlight c1 c2
+                    |> Expect.equal c2
+        , test "Difference" <|
+            \() ->
+                difference c1 c2
+                    |> Expect.equal (rgb 255 153 0)
+        , test "Exclusion" <|
+            \() ->
+                exclusion c1 c2
+                    |> Expect.equal (rgb 255 153 0)
+        , test "Darken" <|
+            \() ->
+                Ble.darken c1 c2
+                    |> Expect.equal (rgb 0 102 0)
+        , test "Lighten" <|
+            \() ->
+                Ble.lighten c1 c2
+                    |> Expect.equal (rgb 255 255 0)
         ]
 
 
 interpolation : Test
 interpolation =
     describe "Interpolate"
-        [ test "Mix" <| \() -> Expect.equal (interpolate RGB (rgba 0 0 0 0) (rgba 255 255 255 1) 0.5) (rgba 128 128 128 0.5)
+        [ test "Mix" <|
+            \() ->
+                interpolate RGB (rgba 0 0 0 0) (rgba 255 255 255 1) 0.5
+                    |> Expect.equal (rgba 128 128 128 0.5)
         ]
 
 
@@ -238,8 +422,14 @@ p2Result =
 gradient : Test
 gradient =
     describe "Gradient"
-        [ test "Gradient from list" <| \() -> Expect.equal (Gra.linearGradient RGB p1 5) p1Result
-        , test "Gradient from stops" <| \() -> Expect.equal (Gra.linearGradientFromStops RGB p2 5) p2Result
+        [ test "Gradient from list" <|
+            \() ->
+                Gra.linearGradient RGB p1 5
+                    |> Expect.equal p1Result
+        , test "Gradient from stops" <|
+            \() ->
+                Gra.linearGradientFromStops RGB p2 5
+                    |> Expect.equal p2Result
         ]
 
 
