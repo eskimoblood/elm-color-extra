@@ -38,9 +38,9 @@ colorToCssRgb cl =
             toRgb cl
     in
     cssColorString "rgb"
-        [ toString red
-        , toString green
-        , toString blue
+        [ String.fromInt red
+        , String.fromInt green
+        , String.fromInt blue
         ]
 
 
@@ -56,10 +56,10 @@ colorToCssRgba cl =
             toRgb cl
     in
     cssColorString "rgba"
-        [ toString red
-        , toString green
-        , toString blue
-        , toString alpha
+        [ String.fromInt red
+        , String.fromInt green
+        , String.fromInt blue
+        , String.fromFloat alpha
         ]
 
 
@@ -96,18 +96,18 @@ colorToCssHsla cl =
         [ hueToString hue
         , toPercentString saturation
         , toPercentString lightness
-        , toString alpha
+        , String.fromFloat alpha
         ]
 
 
 hueToString : Float -> String
 hueToString =
-    (*) 180 >> (\a -> (/) a pi) >> round >> toString
+    (*) 180 >> (\a -> (/) a pi) >> round >> String.fromInt
 
 
 toPercentString : Float -> String
 toPercentString =
-    (*) 100 >> round >> toString >> (\a -> (++) a "%")
+    (*) 100 >> round >> String.fromInt >> (\a -> (++) a "%")
 
 
 cssColorString : String -> List String -> String
@@ -139,33 +139,40 @@ hexToColor =
         extend : String -> String
         extend token =
             case String.toList token of
-                [ token ] ->
-                    String.fromList [ token, token ]
+                [ matchedToken ] ->
+                    String.fromList [ matchedToken, matchedToken ]
 
                 _ ->
                     token
 
         pattern =
-            ""
-                ++ "^"
-                ++ "#?"
-                ++ "(?:"
-                -- RRGGBB
-                ++ "(?:([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2}))"
-                -- RGB
-                ++ "|"
-                ++ "(?:([a-f\\d])([a-f\\d])([a-f\\d]))"
-                -- RRGGBBAA
-                ++ "|"
-                ++ "(?:([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2}))"
-                -- RGBA
-                ++ "|"
-                ++ "(?:([a-f\\d])([a-f\\d])([a-f\\d])([a-f\\d]))"
-                ++ ")"
-                ++ "$"
+            Maybe.withDefault Regex.never <|
+                Regex.fromString <|
+                    String.concat
+                        [ "^"
+                        , "#?"
+                        , "(?:"
+
+                        -- RRGGBB
+                        , "(?:([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2}))"
+
+                        -- RGB
+                        , "|"
+                        , "(?:([a-f\\d])([a-f\\d])([a-f\\d]))"
+
+                        -- RRGGBBAA
+                        , "|"
+                        , "(?:([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2}))"
+
+                        -- RGBA
+                        , "|"
+                        , "(?:([a-f\\d])([a-f\\d])([a-f\\d])([a-f\\d]))"
+                        , ")"
+                        , "$"
+                        ]
     in
     String.toLower
-        >> Regex.find (Regex.AtMost 1) (Regex.regex pattern)
+        >> Regex.findAtMost 1 pattern
         >> List.head
         >> Maybe.map .submatches
         >> Maybe.map (List.filterMap identity)
@@ -258,7 +265,7 @@ toRadix n =
     let
         getChr c =
             if c < 10 then
-                toString c
+                String.fromInt c
 
             else
                 String.fromChar <| Char.fromCode (87 + c)

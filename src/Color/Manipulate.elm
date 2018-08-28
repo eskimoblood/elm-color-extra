@@ -137,20 +137,20 @@ The values of the supplied tuple scale red, green, blue, and alpha channels, res
 This function is inspired by the Sass function [scale-color](http://sass-lang.com/documentation/Sass/Script/Functions.html#scale_color-instance_method).
 
 -}
-scaleRgb : ( Float, Float, Float, Float ) -> Color -> Color
-scaleRgb scaleBy color =
+scaleRgb :
+    { red : Float, green : Float, blue : Float, alpha : Float }
+    -> Color
+    -> Color
+scaleRgb scaleFactor color =
     let
-        ( rScale, gScale, bScale, aScale ) =
-            scaleBy
-
         rgb =
             toRgb color
     in
     rgba
-        (round (scale 255 rScale (toFloat rgb.red)))
-        (round (scale 255 gScale (toFloat rgb.green)))
-        (round (scale 255 bScale (toFloat rgb.blue)))
-        (scale 1.0 aScale rgb.alpha)
+        (round (scale 255 scaleFactor.red (toFloat rgb.red)))
+        (round (scale 255 scaleFactor.green (toFloat rgb.green)))
+        (round (scale 255 scaleFactor.blue (toFloat rgb.blue)))
+        (scale 1.0 scaleFactor.alpha rgb.alpha)
 
 
 scale : Float -> Float -> Float -> Float

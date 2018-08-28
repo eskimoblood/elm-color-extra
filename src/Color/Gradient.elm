@@ -86,7 +86,7 @@ linearGradientFromStops space stops size =
                 l =
                     size - 1
 
-                stops =
+                newStops =
                     List.range 0 l |> List.map (\i -> toFloat i / toFloat l)
 
                 currentStops =
@@ -94,38 +94,47 @@ linearGradientFromStops space stops size =
 
                 ( s2, g ) =
                     getNextGradientStop s1 currentStops
+
+                initialGradient =
+                    InternalGradient s1 s2 g []
             in
-            List.foldl (c space) ( s1, s2, g, [] ) stops
-                |> (\( _, _, _, p ) -> p)
+            newStops
+                |> List.foldl (calculateGradient space) initialGradient
+                |> .palette
                 |> List.reverse
 
         Nothing ->
             []
 
 
-c : Space -> Float -> ( GradientStop, GradientStop, Gradient, Palette ) -> ( GradientStop, GradientStop, Gradient, Palette )
-c space t ( stop1, stop2, gradient, palette ) =
-    let
-        ( stop1_, stop2_, gradient_, color ) =
-            calculateGradient space stop1 stop2 gradient t
-    in
-    ( stop1_, stop2_, gradient_, color :: palette )
+type alias InternalGradient =
+    { start : GradientStop
+    , stop : GradientStop
+    , gradient : Gradient
+    , palette : Palette
+    }
 
 
-calculateGradient : Space -> GradientStop -> GradientStop -> Gradient -> Float -> ( GradientStop, GradientStop, Gradient, Color )
-calculateGradient space stop1 stop2 gradient t =
-    if first stop2 < t then
+calculateGradient : Space -> Float -> InternalGradient -> InternalGradient
+calculateGradient space t internal =
+    if first internal.stop < t then
         let
             stop1_ =
-                stop2
+                internal.stop
 
             ( stop2_, gradient_ ) =
-                getNextGradientStop stop2 gradient
+                getNextGradientStop internal.stop internal.gradient
         in
-        ( stop1_, stop2_, gradient_, calculateColor space stop1_ stop2_ t )
+        { start = stop1_
+        , stop = stop2_
+        , gradient = gradient_
+        , palette = calculateColor space stop1_ stop2_ t :: internal.palette
+        }
 
     else
-        ( stop1, stop2, gradient, calculateColor space stop1 stop2 t )
+        { internal
+            | palette = calculateColor space internal.start internal.stop t :: internal.palette
+        }
 
 
 calculateColor : Space -> GradientStop -> GradientStop -> Float -> Color
