@@ -4,11 +4,12 @@ module Color.Manipulate exposing (darken, lighten, saturate, desaturate, rotateH
 
 
 # Color adjustment
+
 @docs darken, lighten, saturate, desaturate, rotateHue, fadeIn, fadeOut, grayscale, scaleHsl, scaleRgb, mix, weightedMix
 
 -}
 
-import Color exposing (Color, toHsl, hsla, toRgb, rgba)
+import Color exposing (Color, hsla, rgba, toHsl, toRgb)
 import Debug exposing (log)
 
 
@@ -25,7 +26,7 @@ darken offset cl =
         { hue, saturation, lightness, alpha } =
             toHsl cl
     in
-        hsla hue saturation (limit (lightness - offset)) alpha
+    hsla hue saturation (limit (lightness - offset)) alpha
 
 
 {-| Increase the lightning of a color
@@ -43,7 +44,7 @@ saturate offset cl =
         { hue, saturation, lightness, alpha } =
             toHsl cl
     in
-        hsla hue (limit (saturation + offset)) lightness alpha
+    hsla hue (limit (saturation + offset)) lightness alpha
 
 
 {-| Decrease the saturation of a color
@@ -68,7 +69,7 @@ fadeIn offset cl =
         { hue, saturation, lightness, alpha } =
             toHsl cl
     in
-        hsla hue saturation lightness (limit (alpha + offset))
+    hsla hue saturation lightness (limit (alpha + offset))
 
 
 {-| Decrease the opacity of a color
@@ -86,7 +87,7 @@ rotateHue angle cl =
         { hue, saturation, lightness, alpha } =
             toHsl cl
     in
-        hsla (hue + (degrees angle)) saturation lightness alpha
+    hsla (hue + degrees angle) saturation lightness alpha
 
 
 {-| Fluidly scale saturation, lightness and alpha channel.
@@ -103,6 +104,7 @@ The values of the supplied tuple scale saturation, lightness, and opacity, respe
 -1.0 to 1.0.
 
 This function is inspired by the Sass function [scale-color](http://sass-lang.com/documentation/Sass/Script/Functions.html#scale_color-instance_method).
+
 -}
 scaleHsl : ( Float, Float, Float ) -> Color -> Color
 scaleHsl scaleBy color =
@@ -113,10 +115,10 @@ scaleHsl scaleBy color =
         hsl =
             toHsl color
     in
-        hsla hsl.hue
-            (scale 1.0 saturationScale hsl.saturation)
-            (scale 1.0 lightnessScale hsl.lightness)
-            (scale 1.0 alphaScale hsl.alpha)
+    hsla hsl.hue
+        (scale 1.0 saturationScale hsl.saturation)
+        (scale 1.0 lightnessScale hsl.lightness)
+        (scale 1.0 alphaScale hsl.alpha)
 
 
 {-| Fluidly scale red, green, blue, and alpha channels.
@@ -133,21 +135,22 @@ The values of the supplied tuple scale red, green, blue, and alpha channels, res
 -1.0 to 1.0.
 
 This function is inspired by the Sass function [scale-color](http://sass-lang.com/documentation/Sass/Script/Functions.html#scale_color-instance_method).
--}
-scaleRgb : ( Float, Float, Float, Float ) -> Color -> Color
-scaleRgb scaleBy color =
-    let
-        ( rScale, gScale, bScale, aScale ) =
-            scaleBy
 
+-}
+scaleRgb :
+    { red : Float, green : Float, blue : Float, alpha : Float }
+    -> Color
+    -> Color
+scaleRgb scaleFactor color =
+    let
         rgb =
             toRgb color
     in
-        rgba
-            (round (scale 255 rScale (toFloat rgb.red)))
-            (round (scale 255 gScale (toFloat rgb.green)))
-            (round (scale 255 bScale (toFloat rgb.blue)))
-            (scale 1.0 aScale rgb.alpha)
+    rgba
+        (round (scale 255 scaleFactor.red (toFloat rgb.red)))
+        (round (scale 255 scaleFactor.green (toFloat rgb.green)))
+        (round (scale 255 scaleFactor.blue (toFloat rgb.blue)))
+        (scale 1.0 scaleFactor.alpha rgb.alpha)
 
 
 scale : Float -> Float -> Float -> Float
@@ -162,10 +165,11 @@ scale max scaleAmount value =
         diff =
             if clampedScale > 0 then
                 max - clampedValue
+
             else
                 clampedValue
     in
-        clampedValue + diff * clampedScale
+    clampedValue + diff * clampedScale
 
 
 {-| Mixes two colors together.
@@ -178,6 +182,7 @@ of 0.5 means that half the first color and half the second color should be used.
 of the first color and three quarters of the second color should be used.
 
 This function uses the same algorithm as the [mix](http://sass-lang.com/documentation/Sass/Script/Functions.html#mix-instance_method) function in Sass.
+
 -}
 weightedMix : Color -> Color -> Float -> Color
 weightedMix color1 color2 weight =
@@ -206,10 +211,10 @@ weightedMix color1 color2 weight =
         alphaMixed =
             c1.alpha * clampedWeight + c2.alpha * (1 - clampedWeight)
     in
-        rgba rMixed gMixed bMixed alphaMixed
+    rgba rMixed gMixed bMixed alphaMixed
 
 
-{-| Mixes two colors together.  This is the same as calling `weightedMix` with a weight of 0.5.
+{-| Mixes two colors together. This is the same as calling `weightedMix` with a weight of 0.5.
 -}
 mix : Color -> Color -> Color
 mix c1 c2 =
@@ -228,12 +233,13 @@ calculateWeight a1 a2 weight =
         w2 =
             if w1 * a == -1 then
                 w1
+
             else
                 (w1 + a) / (1 + w1 * a)
     in
-        (w2 + 1) / 2
+    (w2 + 1) / 2
 
 
 mixChannel : Float -> Int -> Int -> Int
 mixChannel weight c1 c2 =
-    round <| (toFloat c1) * weight + (toFloat c2) * (1 - weight)
+    round <| toFloat c1 * weight + toFloat c2 * (1 - weight)

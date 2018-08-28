@@ -1,14 +1,18 @@
-module Color.Gradient exposing (linearGradient, linearGradientFromStops, cosineGradient, Palette, GradientStop, Gradient, CosineGradientSetting)
+module Color.Gradient exposing (GradientStop, Gradient, Palette, linearGradient, linearGradientFromStops, CosineGradientSetting, cosineGradient)
 
 {-|
+
+
 # Gradient
+
 @docs GradientStop, Gradient, Palette, linearGradient, linearGradientFromStops, CosineGradientSetting, cosineGradient
+
 -}
 
 import Color exposing (Color)
+import Color.Interpolate as Interpolate exposing (Space(..), interpolate)
 import Maybe exposing (..)
 import Tuple exposing (first)
-import Color.Interpolate as Interpolate exposing (interpolate, Space(RGB, HSL))
 
 
 {-| Create a new gradient `Palette` from a given `Palette`, with a given size.
@@ -18,7 +22,7 @@ type alias Palette =
 
 
 {-| A color and a stop value that indicates where the color appears in a gradient.
- The stop value must be between `0` and `1`.
+The stop value must be between `0` and `1`.
 -}
 type alias GradientStop =
     ( Float, Color )
@@ -29,8 +33,8 @@ type alias Gradient =
     List GradientStop
 
 
-{-| Create a new `Palette`  with gradient colors from a given `Palette`,
- with a given size.
+{-| Create a new `Palette` with gradient colors from a given `Palette`,
+with a given size.
 
     p1 : Palette
     p1 =
@@ -39,6 +43,7 @@ type alias Gradient =
       , rgb 100 0 0
       ]
     gradient RGB p1 5 -- [RGBA 200 0 200 1,RGBA 100 50 150 1,RGBA 0 100 100 1,RGBA 50 50 50 1,RGBA 100 0 0 1]
+
 -}
 linearGradient : Space -> Palette -> Int -> Palette
 linearGradient space palette size =
@@ -47,13 +52,13 @@ linearGradient space palette size =
             List.length palette - 1
 
         gr =
-            List.map2 (\i cl -> ( (toFloat i / toFloat l), cl )) (List.range 0 l) palette
+            List.map2 (\i cl -> ( toFloat i / toFloat l, cl )) (List.range 0 l) palette
     in
-        linearGradientFromStops space gr size
+    linearGradientFromStops space gr size
 
 
-{-| Create a new `Palette`  with gradient colors from a given `Gradient`,
- with a given size.
+{-| Create a new `Palette` with gradient colors from a given `Gradient`,
+with a given size.
 
     g : Gradient
     g =
@@ -62,6 +67,7 @@ linearGradient space palette size =
       , (1, rgb 150 175 160)
       ]
     gradientFromStops RGB g 5 -- [RGBA 200 0 200 1,RGBA 0 100 100 1,RGBA 50 125 120 1,RGBA 100 150 140 1,RGBA 150 175 160 1]
+
 -}
 linearGradientFromStops : Space -> Gradient -> Int -> Palette
 linearGradientFromStops space stops size =
@@ -74,59 +80,71 @@ linearGradientFromStops space stops size =
         stop1 =
             List.head purifiedStops
     in
-        case stop1 of
-            Just s1 ->
-                let
-                    l =
-                        size - 1
+    case stop1 of
+        Just s1 ->
+            let
+                l =
+                    size - 1
 
-                    stops =
-                        (List.range 0 l) |> List.map (\i -> (toFloat i) / (toFloat l))
+                newStops =
+                    List.range 0 l |> List.map (\i -> toFloat i / toFloat l)
 
-                    currentStops =
-                        Maybe.withDefault [] (List.tail purifiedStops)
+                currentStops =
+                    Maybe.withDefault [] (List.tail purifiedStops)
 
-                    ( s2, g ) =
-                        getNextGradientStop s1 currentStops
-                in
-                    List.foldl (c space) ( s1, s2, g, [] ) stops
-                        |> (\( _, _, _, p ) -> p)
-                        |> List.reverse
+                ( s2, g ) =
+                    getNextGradientStop s1 currentStops
 
-            Nothing ->
-                []
+                initialGradient =
+                    InternalGradient s1 s2 g []
+            in
+            newStops
+                |> List.foldl (calculateGradient space) initialGradient
+                |> .palette
+                |> List.reverse
 
-
-c : Space -> Float -> ( GradientStop, GradientStop, Gradient, Palette ) -> ( GradientStop, GradientStop, Gradient, Palette )
-c space t ( stop1, stop2, gradient, palette ) =
-    let
-        ( stop1_, stop2_, gradient_, color ) =
-            calculateGradient space stop1 stop2 gradient t
-    in
-        ( stop1_, stop2_, gradient_, (color :: palette) )
+        Nothing ->
+            []
 
 
-calculateGradient : Space -> GradientStop -> GradientStop -> Gradient -> Float -> ( GradientStop, GradientStop, Gradient, Color )
-calculateGradient space stop1 stop2 gradient t =
-    if (first stop2 < t) then
+type alias InternalGradient =
+    { start : GradientStop
+    , stop : GradientStop
+    , gradient : Gradient
+    , palette : Palette
+    }
+
+
+calculateGradient : Space -> Float -> InternalGradient -> InternalGradient
+calculateGradient space t internal =
+    if first internal.stop < t then
         let
             stop1_ =
-                stop2
+                internal.stop
 
             ( stop2_, gradient_ ) =
-                getNextGradientStop stop2 gradient
+                getNextGradientStop internal.stop internal.gradient
         in
-            ( stop1_, stop2_, gradient_, (calculateColor space stop1_ stop2_ t) )
+        { start = stop1_
+        , stop = stop2_
+        , gradient = gradient_
+        , palette = calculateColor space stop1_ stop2_ t :: internal.palette
+        }
+
     else
-        ( stop1, stop2, gradient, (calculateColor space stop1 stop2 t) )
+        { internal
+            | palette = calculateColor space internal.start internal.stop t :: internal.palette
+        }
 
 
 calculateColor : Space -> GradientStop -> GradientStop -> Float -> Color
 calculateColor space ( t1, cl1 ) ( t2, cl2 ) t =
     if t == 0 then
         cl1
+
     else if t == 1 then
         cl2
+
     else
         interpolate space cl1 cl2 ((t - t1) / (t2 - t1))
 
@@ -137,16 +155,15 @@ getNextGradientStop currentStop gradient =
         nextStop =
             List.head gradient
     in
-        case nextStop of
-            Just s ->
-                ( s, Maybe.withDefault [] (List.tail gradient) )
+    case nextStop of
+        Just s ->
+            ( s, Maybe.withDefault [] (List.tail gradient) )
 
-            Nothing ->
-                ( currentStop, gradient )
+        Nothing ->
+            ( currentStop, gradient )
 
 
-{-|
-   parameters for calculate RGB values for cosine gradients
+{-| parameters for calculate RGB values for cosine gradients
 -}
 type alias CosineGradientSetting =
     ( Float, Float, Float )
@@ -155,7 +172,7 @@ type alias CosineGradientSetting =
 calcCosine : Float -> Float -> Float -> Float -> Float -> Int
 calcCosine a b c d t =
     (a + b * cos (pi * 2 * (c * t + d)))
-        |> (clamp 0 1)
+        |> clamp 0 1
         |> (*) 255
         |> round
 
@@ -168,11 +185,10 @@ calcCosineColor ( oX, oY, oZ ) ( aX, aY, aZ ) ( fX, fY, fZ ) ( pX, pY, pZ ) t =
         (calcCosine oZ aZ fZ pZ t)
 
 
-{-|
-   Create a gradient based on the on an [idea by Iñigo Quílez](http://www.iquilezles.org/www/articles/palettes/palettes.htm)
-   For an interactive example have a look at Karsten Schmidt's example from his [thi.ng library](http://dev.thi.ng/gradients/)
+{-| Create a gradient based on the on an [idea by Iñigo Quílez](http://www.iquilezles.org/www/articles/palettes/palettes.htm)
+For an interactive example have a look at Karsten Schmidt's example from his [thi.ng library](http://dev.thi.ng/gradients/)
 -}
 cosineGradient : CosineGradientSetting -> CosineGradientSetting -> CosineGradientSetting -> CosineGradientSetting -> Int -> Palette
 cosineGradient offset amp fmod phase l =
     List.range 0 l
-        |> List.map (toFloat >> (*) (1.0 / toFloat l) >> (calcCosineColor offset amp fmod phase))
+        |> List.map (toFloat >> (*) (1.0 / toFloat l) >> calcCosineColor offset amp fmod phase)
